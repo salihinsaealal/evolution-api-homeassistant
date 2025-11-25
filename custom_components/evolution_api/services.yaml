@@ -2,19 +2,27 @@
 
 send_text:
   name: Send Text Message
-  description: Send a text message via WhatsApp. Use this service in automations to send notifications to any WhatsApp number.
+  description: Send a text message via WhatsApp. Use this service in automations to send notifications to any WhatsApp number or group.
   target:
     device:
       integration: evolution_api
   fields:
     phone_number:
       name: Phone Number
-      description: The recipient's phone number with country code (e.g., +1234567890 or 1234567890)
-      required: true
+      description: The recipient's phone number with country code (e.g., +1234567890). Leave empty if sending to a group.
+      required: false
       example: "+1234567890"
       selector:
         text:
           type: tel
+    group_id:
+      name: Group
+      description: Select a group to send the message to. Use the Groups sensor attributes to find group IDs, or paste the group JID directly (e.g., 123456789@g.us).
+      required: false
+      example: "120363418454200327@g.us"
+      selector:
+        text:
+          suffix: "@g.us"
     message:
       name: Message
       description: The text message to send. Supports emojis and line breaks.
@@ -61,12 +69,20 @@ send_media:
   fields:
     phone_number:
       name: Phone Number
-      description: The recipient's phone number with country code
-      required: true
+      description: The recipient's phone number with country code. Leave empty if sending to a group.
+      required: false
       example: "+1234567890"
       selector:
         text:
           type: tel
+    group_id:
+      name: Group
+      description: Group JID to send to (e.g., 123456789@g.us). Leave empty if sending to a phone number.
+      required: false
+      example: "120363418454200327@g.us"
+      selector:
+        text:
+          suffix: "@g.us"
     media_url:
       name: Media URL
       description: URL to the media file or base64 encoded content
@@ -127,12 +143,19 @@ send_audio:
   fields:
     phone_number:
       name: Phone Number
-      description: The recipient's phone number with country code
-      required: true
+      description: The recipient's phone number with country code. Leave empty if sending to a group.
+      required: false
       example: "+1234567890"
       selector:
         text:
           type: tel
+    group_id:
+      name: Group
+      description: Group JID to send to (e.g., 123456789@g.us).
+      required: false
+      selector:
+        text:
+          suffix: "@g.us"
     audio_url:
       name: Audio URL
       description: URL to the audio file or base64 encoded content
@@ -201,12 +224,19 @@ send_location:
   fields:
     phone_number:
       name: Phone Number
-      description: The recipient's phone number with country code
-      required: true
+      description: The recipient's phone number with country code. Leave empty if sending to a group.
+      required: false
       example: "+1234567890"
       selector:
         text:
           type: tel
+    group_id:
+      name: Group
+      description: Group JID to send to (e.g., 123456789@g.us).
+      required: false
+      selector:
+        text:
+          suffix: "@g.us"
     latitude:
       name: Latitude
       description: Latitude coordinate (-90 to 90)
@@ -337,19 +367,26 @@ send_reaction:
 
 send_poll:
   name: Send Poll
-  description: Create and send a poll to gather opinions via WhatsApp.
+  description: Create and send a poll to gather opinions via WhatsApp. Perfect for group decisions!
   target:
     device:
       integration: evolution_api
   fields:
     phone_number:
       name: Phone Number
-      description: The recipient's phone number with country code
-      required: true
+      description: The recipient's phone number with country code. Leave empty if sending to a group.
+      required: false
       example: "+1234567890"
       selector:
         text:
           type: tel
+    group_id:
+      name: Group
+      description: Group JID to send the poll to (e.g., 123456789@g.us). Polls work great in groups!
+      required: false
+      selector:
+        text:
+          suffix: "@g.us"
     poll_name:
       name: Poll Question
       description: The question or title of your poll

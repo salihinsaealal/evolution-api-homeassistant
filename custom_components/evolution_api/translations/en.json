@@ -50,11 +50,15 @@
   "services": {
     "send_text": {
       "name": "Send Text Message",
-      "description": "Send a text message via WhatsApp.",
+      "description": "Send a text message via WhatsApp to a phone number or group.",
       "fields": {
         "phone_number": {
           "name": "Phone Number",
-          "description": "The recipient's phone number with country code (e.g., +1234567890)"
+          "description": "The recipient's phone number with country code (e.g., +1234567890). Leave empty if sending to a group."
+        },
+        "group_id": {
+          "name": "Group",
+          "description": "Group JID to send to (e.g., 123456789@g.us). Find group IDs in the Groups sensor attributes."
         },
         "message": {
           "name": "Message",

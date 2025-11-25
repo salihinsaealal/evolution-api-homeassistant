@@ -69,6 +69,7 @@ SERVICE_CHECK_NUMBER: Final = "check_number"
 
 # Service attributes
 ATTR_PHONE_NUMBER: Final = "phone_number"
+ATTR_GROUP_ID: Final = "group_id"
 ATTR_MESSAGE: Final = "message"
 ATTR_MEDIA_URL: Final = "media_url"
 ATTR_MEDIA_TYPE: Final = "media_type"

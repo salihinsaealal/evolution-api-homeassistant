@@ -23,6 +23,7 @@ from .const import (
     ATTR_CONTACT_PHONE,
     ATTR_DELAY,
     ATTR_FILENAME,
+    ATTR_GROUP_ID,
     ATTR_LATITUDE,
     ATTR_LINK_PREVIEW,
     ATTR_LOCATION_ADDRESS,
@@ -61,10 +62,28 @@ SERVICE_REFRESH_GROUPS = "refresh_groups"
 
 _LOGGER = logging.getLogger(__name__)
 
+# Helper to get recipient (phone number or group ID)
+def _get_recipient(call_data: dict[str, Any]) -> str:
+    """Get the recipient from phone_number or group_id."""
+    phone = call_data.get(ATTR_PHONE_NUMBER)
+    group = call_data.get(ATTR_GROUP_ID)
+    
+    if group:
+        # Ensure group ID has the correct suffix
+        if not group.endswith("@g.us"):
+            group = f"{group}@g.us"
+        return group
+    elif phone:
+        return phone
+    else:
+        raise ValueError("Either phone_number or group_id must be provided")
+
+
 # Service schemas
 SERVICE_SEND_TEXT_SCHEMA = vol.Schema(
     {
-        vol.Required(ATTR_PHONE_NUMBER): cv.string,
+        vol.Optional(ATTR_PHONE_NUMBER): cv.string,
+        vol.Optional(ATTR_GROUP_ID): cv.string,
         vol.Required(ATTR_MESSAGE): cv.string,
         vol.Optional(ATTR_DELAY, default=0): cv.positive_int,
         vol.Optional(ATTR_LINK_PREVIEW, default=True): cv.boolean,
@@ -74,7 +93,8 @@ SERVICE_SEND_TEXT_SCHEMA = vol.Schema(
 
 SERVICE_SEND_MEDIA_SCHEMA = vol.Schema(
     {
-        vol.Required(ATTR_PHONE_NUMBER): cv.string,
+        vol.Optional(ATTR_PHONE_NUMBER): cv.string,
+        vol.Optional(ATTR_GROUP_ID): cv.string,
         vol.Required(ATTR_MEDIA_URL): cv.string,
         vol.Required(ATTR_MEDIA_TYPE): vol.In(["image", "video", "document"]),
         vol.Optional(ATTR_MEDIA_CAPTION): cv.string,
@@ -85,7 +105,8 @@ SERVICE_SEND_MEDIA_SCHEMA = vol.Schema(
 
 SERVICE_SEND_AUDIO_SCHEMA = vol.Schema(
     {
-        vol.Required(ATTR_PHONE_NUMBER): cv.string,
+        vol.Optional(ATTR_PHONE_NUMBER): cv.string,
+        vol.Optional(ATTR_GROUP_ID): cv.string,
         vol.Required(ATTR_AUDIO_URL): cv.string,
         vol.Optional(ATTR_DELAY, default=0): cv.positive_int,
     }
@@ -93,7 +114,8 @@ SERVICE_SEND_AUDIO_SCHEMA = vol.Schema(
 
 SERVICE_SEND_STICKER_SCHEMA = vol.Schema(
     {
-        vol.Required(ATTR_PHONE_NUMBER): cv.string,
+        vol.Optional(ATTR_PHONE_NUMBER): cv.string,
+        vol.Optional(ATTR_GROUP_ID): cv.string,
         vol.Required(ATTR_STICKER_URL): cv.string,
         vol.Optional(ATTR_DELAY, default=0): cv.positive_int,
     }
@@ -101,7 +123,8 @@ SERVICE_SEND_STICKER_SCHEMA = vol.Schema(
 
 SERVICE_SEND_LOCATION_SCHEMA = vol.Schema(
     {
-        vol.Required(ATTR_PHONE_NUMBER): cv.string,
+        vol.Optional(ATTR_PHONE_NUMBER): cv.string,
+        vol.Optional(ATTR_GROUP_ID): cv.string,
         vol.Required(ATTR_LATITUDE): vol.Coerce(float),
         vol.Required(ATTR_LONGITUDE): vol.Coerce(float),
         vol.Optional(ATTR_LOCATION_NAME): cv.string,
@@ -112,7 +135,8 @@ SERVICE_SEND_LOCATION_SCHEMA = vol.Schema(
 
 SERVICE_SEND_CONTACT_SCHEMA = vol.Schema(
     {
-        vol.Required(ATTR_PHONE_NUMBER): cv.string,
+        vol.Optional(ATTR_PHONE_NUMBER): cv.string,
+        vol.Optional(ATTR_GROUP_ID): cv.string,
         vol.Required(ATTR_CONTACT_NAME): cv.string,
         vol.Required(ATTR_CONTACT_PHONE): cv.string,
         vol.Optional(ATTR_CONTACT_EMAIL): cv.string,
@@ -122,7 +146,8 @@ SERVICE_SEND_CONTACT_SCHEMA = vol.Schema(
 
 SERVICE_SEND_REACTION_SCHEMA = vol.Schema(
     {
-        vol.Required(ATTR_PHONE_NUMBER): cv.string,
+        vol.Optional(ATTR_PHONE_NUMBER): cv.string,
+        vol.Optional(ATTR_GROUP_ID): cv.string,
         vol.Required(ATTR_MESSAGE_ID): cv.string,
         vol.Required(ATTR_REACTION): cv.string,
     }
@@ -130,7 +155,8 @@ SERVICE_SEND_REACTION_SCHEMA = vol.Schema(
 
 SERVICE_SEND_POLL_SCHEMA = vol.Schema(
     {
-        vol.Required(ATTR_PHONE_NUMBER): cv.string,
+        vol.Optional(ATTR_PHONE_NUMBER): cv.string,
+        vol.Optional(ATTR_GROUP_ID): cv.string,
         vol.Required(ATTR_POLL_NAME): cv.string,
         vol.Required(ATTR_POLL_OPTIONS): cv.string,
         vol.Optional(ATTR_POLL_MAX_SELECTIONS, default=1): cv.positive_int,
@@ -217,8 +243,9 @@ async def _async_register_services(hass: HomeAssistant) -> None:
         """Handle send text service call."""
         client = _get_client(hass)
         try:
+            recipient = _get_recipient(call.data)
             await client.send_text(
-                number=call.data[ATTR_PHONE_NUMBER],
+                number=recipient,
                 text=call.data[ATTR_MESSAGE],
                 delay=call.data.get(ATTR_DELAY),
                 link_preview=call.data.get(ATTR_LINK_PREVIEW, True),
@@ -232,8 +259,9 @@ async def _async_register_services(hass: HomeAssistant) -> None:
         """Handle send media service call."""
         client = _get_client(hass)
         try:
+            recipient = _get_recipient(call.data)
             await client.send_media(
-                number=call.data[ATTR_PHONE_NUMBER],
+                number=recipient,
                 media_url=call.data[ATTR_MEDIA_URL],
                 media_type=call.data[ATTR_MEDIA_TYPE],
                 caption=call.data.get(ATTR_MEDIA_CAPTION),
@@ -248,8 +276,9 @@ async def _async_register_services(hass: HomeAssistant) -> None:
         """Handle send audio service call."""
         client = _get_client(hass)
         try:
+            recipient = _get_recipient(call.data)
             await client.send_audio(
-                number=call.data[ATTR_PHONE_NUMBER],
+                number=recipient,
                 audio_url=call.data[ATTR_AUDIO_URL],
                 delay=call.data.get(ATTR_DELAY),
             )
@@ -261,8 +290,9 @@ async def _async_register_services(hass: HomeAssistant) -> None:
         """Handle send sticker service call."""
         client = _get_client(hass)
         try:
+            recipient = _get_recipient(call.data)
             await client.send_sticker(
-                number=call.data[ATTR_PHONE_NUMBER],
+                number=recipient,
                 sticker_url=call.data[ATTR_STICKER_URL],
                 delay=call.data.get(ATTR_DELAY),
             )
@@ -274,8 +304,9 @@ async def _async_register_services(hass: HomeAssistant) -> None:
         """Handle send location service call."""
         client = _get_client(hass)
         try:
+            recipient = _get_recipient(call.data)
             await client.send_location(
-                number=call.data[ATTR_PHONE_NUMBER],
+                number=recipient,
                 latitude=call.data[ATTR_LATITUDE],
                 longitude=call.data[ATTR_LONGITUDE],
                 name=call.data.get(ATTR_LOCATION_NAME),
@@ -290,8 +321,9 @@ async def _async_register_services(hass: HomeAssistant) -> None:
         """Handle send contact service call."""
         client = _get_client(hass)
         try:
+            recipient = _get_recipient(call.data)
             await client.send_contact(
-                number=call.data[ATTR_PHONE_NUMBER],
+                number=recipient,
                 contact_name=call.data[ATTR_CONTACT_NAME],
                 contact_phone=call.data[ATTR_CONTACT_PHONE],
                 contact_email=call.data.get(ATTR_CONTACT_EMAIL),
@@ -305,8 +337,9 @@ async def _async_register_services(hass: HomeAssistant) -> None:
         """Handle send reaction service call."""
         client = _get_client(hass)
         try:
+            recipient = _get_recipient(call.data)
             await client.send_reaction(
-                number=call.data[ATTR_PHONE_NUMBER],
+                number=recipient,
                 message_id=call.data[ATTR_MESSAGE_ID],
                 reaction=call.data[ATTR_REACTION],
             )
@@ -321,8 +354,9 @@ async def _async_register_services(hass: HomeAssistant) -> None:
         options_str = call.data[ATTR_POLL_OPTIONS]
         options = [opt.strip() for opt in options_str.split(",") if opt.strip()]
         try:
+            recipient = _get_recipient(call.data)
             await client.send_poll(
-                number=call.data[ATTR_PHONE_NUMBER],
+                number=recipient,
                 poll_name=call.data[ATTR_POLL_NAME],
                 options=options,
                 max_selections=call.data.get(ATTR_POLL_MAX_SELECTIONS, 1),
