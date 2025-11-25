@@ -165,6 +165,7 @@ class EvolutionApiGroupsSensor(SensorEntity):
         self._server_url = server_url
         self._entry = entry
         self._groups: list[dict[str, Any]] = []
+        self._last_updated: str | None = None
 
     async def async_added_to_hass(self) -> None:
         """Run when entity about to be added to hass."""
@@ -178,15 +179,29 @@ class EvolutionApiGroupsSensor(SensorEntity):
             )
         )
         
-        # Load any existing groups data
-        if "groups" in self.hass.data[DOMAIN].get(self._entry.entry_id, {}):
-            self._groups = self.hass.data[DOMAIN][self._entry.entry_id]["groups"]
+        # Load groups from persistent storage first
+        entry_data = self.hass.data[DOMAIN].get(self._entry.entry_id, {})
+        if "storage" in entry_data:
+            storage = entry_data["storage"]
+            stored_groups = storage.get_groups()
+            if stored_groups:
+                self._groups = stored_groups
+                self._last_updated = storage.get_groups_last_updated()
+                _LOGGER.info("Loaded %d groups from storage", len(self._groups))
+        
+        # Also check hass.data for any runtime updates
+        if "groups" in entry_data:
+            self._groups = entry_data["groups"]
 
     @callback
     def _handle_groups_updated(self, event) -> None:
         """Handle groups updated event."""
         if event.data.get("entry_id") == self._entry.entry_id:
-            self._groups = self.hass.data[DOMAIN][self._entry.entry_id].get("groups", [])
+            entry_data = self.hass.data[DOMAIN][self._entry.entry_id]
+            self._groups = entry_data.get("groups", [])
+            # Update last_updated from storage
+            if "storage" in entry_data:
+                self._last_updated = entry_data["storage"].get_groups_last_updated()
             self.async_write_ha_state()
 
     @property
@@ -220,9 +235,7 @@ class EvolutionApiGroupsSensor(SensorEntity):
         return {
             "groups": groups_list,
             "total_groups": len(self._groups),
-            "last_updated": self.hass.data[DOMAIN].get(self._entry.entry_id, {}).get(
-                "groups_last_updated", "Never"
-            ),
+            "last_updated": self._last_updated or "Never",
         }
 
     @property

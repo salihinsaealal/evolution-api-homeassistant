@@ -90,9 +90,15 @@ class RefreshGroupsButton(EvolutionApiButtonBase):
             _LOGGER.info("Refreshing groups for instance %s", self._instance_id)
             groups = await self._client.fetch_all_groups(get_participants=False)
             
+            entry_data = self.hass.data[DOMAIN][self._entry.entry_id]
+            
             # Store groups in hass.data for other entities to use
-            self.hass.data[DOMAIN][self._entry.entry_id]["groups"] = groups
-            self.hass.data[DOMAIN][self._entry.entry_id]["groups_count"] = len(groups)
+            entry_data["groups"] = groups
+            entry_data["groups_count"] = len(groups)
+            
+            # Save to persistent storage
+            if "storage" in entry_data:
+                await entry_data["storage"].async_save_groups(groups)
             
             # Fire event so other entities can update
             self.hass.bus.async_fire(

@@ -15,6 +15,7 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 PLATFORMS = [Platform.SENSOR, Platform.BUTTON]
 
 from .api import EvolutionApiClient, EvolutionApiError
+from .storage import EvolutionApiStorage
 from .const import (
     ATTR_AUDIO_URL,
     ATTR_CONTACT_EMAIL,
@@ -185,10 +186,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         verify_ssl=entry.data.get(CONF_VERIFY_SSL, DEFAULT_VERIFY_SSL),
     )
 
-    # Store the client
+    # Initialize persistent storage
+    storage = EvolutionApiStorage(hass, entry.entry_id)
+    await storage.async_load()
+
+    # Store the client and storage
     hass.data[DOMAIN][entry.entry_id] = {
         "client": client,
         "config": entry.data,
+        "storage": storage,
     }
 
     # Register services
@@ -383,11 +389,15 @@ async def _async_register_services(hass: HomeAssistant) -> None:
             _LOGGER.info("Refreshing groups list")
             groups = await client.fetch_all_groups(get_participants=False)
             
-            # Store groups in hass.data for all entries
+            # Store groups in hass.data and persistent storage for all entries
             for entry_id, entry_data in hass.data[DOMAIN].items():
                 if "client" in entry_data:
                     entry_data["groups"] = groups
                     entry_data["groups_count"] = len(groups)
+                    
+                    # Save to persistent storage
+                    if "storage" in entry_data:
+                        await entry_data["storage"].async_save_groups(groups)
                     
                     # Fire event so sensors can update
                     hass.bus.async_fire(
