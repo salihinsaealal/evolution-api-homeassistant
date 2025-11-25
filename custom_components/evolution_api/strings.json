@@ -1,0 +1,50 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Evolution API Configuration",
+        "description": "Enter your Evolution API connection details. You can find these in your Evolution API dashboard.\n\n[Evolution API Documentation]({docs_url})",
+        "data": {
+          "server_url": "Server URL",
+          "instance_id": "Instance ID",
+          "api_key": "API Key",
+          "verify_ssl": "Verify SSL Certificate"
+        },
+        "data_description": {
+          "server_url": "The base URL of your Evolution API server (e.g., https://your-server.com)",
+          "instance_id": "The unique identifier for your WhatsApp instance",
+          "api_key": "Your Evolution API authentication key",
+          "verify_ssl": "Enable SSL certificate verification (recommended for production)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect to the Evolution API server. Please check the server URL.",
+      "invalid_auth": "Invalid API key. Please check your credentials.",
+      "instance_not_connected": "The WhatsApp instance is not connected. Please scan the QR code in Evolution API dashboard.",
+      "unknown": "An unexpected error occurred. Please check the logs for more details."
+    },
+    "abort": {
+      "already_configured": "This Evolution API instance is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Evolution API Options",
+        "description": "Update your Evolution API connection settings.",
+        "data": {
+          "server_url": "Server URL",
+          "instance_id": "Instance ID",
+          "api_key": "API Key",
+          "verify_ssl": "Verify SSL Certificate"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect to the Evolution API server.",
+      "invalid_auth": "Invalid API key.",
+      "instance_not_connected": "The WhatsApp instance is not connected."
+    }
+  }
+}
