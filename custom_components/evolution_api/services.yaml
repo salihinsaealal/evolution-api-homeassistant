@@ -3,9 +3,6 @@
 send_text:
   name: Send Text Message
   description: Send a text message via WhatsApp. Use this service in automations to send notifications to any WhatsApp number or group.
-  target:
-    device:
-      integration: evolution_api
   fields:
     phone_number:
       name: Phone Number
@@ -63,9 +60,6 @@ send_text:
 send_media:
   name: Send Media
   description: Send an image, video, or document via WhatsApp. Supports URLs or base64 encoded content.
-  target:
-    device:
-      integration: evolution_api
   fields:
     phone_number:
       name: Phone Number
@@ -137,9 +131,6 @@ send_media:
 send_audio:
   name: Send Audio Message
   description: Send a voice note or audio file via WhatsApp.
-  target:
-    device:
-      integration: evolution_api
   fields:
     phone_number:
       name: Phone Number
@@ -181,9 +172,6 @@ send_audio:
 send_sticker:
   name: Send Sticker
   description: Send a sticker via WhatsApp. WebP format recommended.
-  target:
-    device:
-      integration: evolution_api
   fields:
     phone_number:
       name: Phone Number
@@ -225,9 +213,6 @@ send_sticker:
 send_location:
   name: Send Location
   description: Share a location via WhatsApp. Great for sending your home location or meeting points.
-  target:
-    device:
-      integration: evolution_api
   fields:
     phone_number:
       name: Phone Number
@@ -297,9 +282,6 @@ send_location:
 send_contact:
   name: Send Contact Card
   description: Share a contact's information via WhatsApp.
-  target:
-    device:
-      integration: evolution_api
   fields:
     phone_number:
       name: Phone Number
@@ -352,9 +334,6 @@ send_contact:
 send_reaction:
   name: Send Reaction
   description: React to a message with an emoji.
-  target:
-    device:
-      integration: evolution_api
   fields:
     phone_number:
       name: Phone Number
@@ -389,9 +368,6 @@ send_reaction:
 send_poll:
   name: Send Poll
   description: Create and send a poll to gather opinions via WhatsApp. Perfect for group decisions!
-  target:
-    device:
-      integration: evolution_api
   fields:
     phone_number:
       name: Phone Number
@@ -450,9 +426,6 @@ send_poll:
 check_number:
   name: Check WhatsApp Number
   description: Verify if a phone number is registered on WhatsApp.
-  target:
-    device:
-      integration: evolution_api
   fields:
     phone_number:
       name: Phone Number
@@ -467,7 +440,4 @@ check_number:
 refresh_groups:
   name: Refresh Groups List
   description: Fetch the latest list of WhatsApp groups. Results are stored in the Groups sensor.
-  target:
-    device:
-      integration: evolution_api
   fields: {}
