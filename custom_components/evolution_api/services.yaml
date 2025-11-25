@@ -2,175 +2,214 @@
 
 send_text:
   name: Send Text Message
-  description: Send a text message via WhatsApp
+  description: Send a text message via WhatsApp. Use this service in automations to send notifications to any WhatsApp number.
+  target:
+    device:
+      integration: evolution_api
   fields:
     phone_number:
       name: Phone Number
-      description: The phone number to send the message to (with country code, e.g., +1234567890)
+      description: The recipient's phone number with country code (e.g., +1234567890 or 1234567890)
       required: true
       example: "+1234567890"
       selector:
         text:
+          type: tel
     message:
       name: Message
-      description: The text message to send
+      description: The text message to send. Supports emojis and line breaks.
       required: true
-      example: "Hello from Home Assistant!"
+      example: "Hello from Home Assistant! 👋"
       selector:
         text:
           multiline: true
     delay:
-      name: Delay
-      description: Delay in milliseconds before sending the message
+      name: Delay (ms)
+      description: Wait time in milliseconds before sending (simulates typing)
       required: false
       default: 0
+      advanced: true
       selector:
         number:
           min: 0
           max: 60000
+          step: 100
           unit_of_measurement: ms
+          mode: slider
     link_preview:
-      name: Link Preview
-      description: Show link preview if message contains a URL
+      name: Show Link Preview
+      description: Display a preview card if the message contains a URL
       required: false
       default: true
       selector:
         boolean:
     mention_all:
-      name: Mention All
-      description: Mention everyone in the group (only works in groups)
+      name: Mention Everyone
+      description: Mention all participants (only works in group chats)
       required: false
       default: false
+      advanced: true
       selector:
         boolean:
 
 send_media:
   name: Send Media
-  description: Send an image, video, or document via WhatsApp
+  description: Send an image, video, or document via WhatsApp. Supports URLs or base64 encoded content.
+  target:
+    device:
+      integration: evolution_api
   fields:
     phone_number:
       name: Phone Number
-      description: The phone number to send the media to (with country code)
+      description: The recipient's phone number with country code
       required: true
       example: "+1234567890"
       selector:
         text:
+          type: tel
     media_url:
       name: Media URL
-      description: URL or base64 encoded media content
+      description: URL to the media file or base64 encoded content
       required: true
       example: "https://example.com/image.jpg"
       selector:
         text:
+          type: url
     media_type:
       name: Media Type
       description: Type of media being sent
       required: true
+      default: "image"
       selector:
         select:
+          mode: dropdown
           options:
-            - label: Image
+            - label: "📷 Image"
               value: image
-            - label: Video
+            - label: "🎬 Video"
               value: video
-            - label: Document
+            - label: "📄 Document"
               value: document
     caption:
       name: Caption
-      description: Caption for the media
+      description: Caption text to display with the media
       required: false
       selector:
         text:
           multiline: true
     filename:
       name: Filename
-      description: Filename for the media (especially for documents)
+      description: Custom filename (required for documents)
       required: false
+      advanced: true
       selector:
         text:
     delay:
-      name: Delay
-      description: Delay in milliseconds before sending
+      name: Delay (ms)
+      description: Wait time before sending
       required: false
       default: 0
+      advanced: true
       selector:
         number:
           min: 0
           max: 60000
+          step: 100
           unit_of_measurement: ms
+          mode: slider
 
 send_audio:
-  name: Send Audio
-  description: Send an audio message (voice note) via WhatsApp
+  name: Send Audio Message
+  description: Send a voice note or audio file via WhatsApp.
+  target:
+    device:
+      integration: evolution_api
   fields:
     phone_number:
       name: Phone Number
-      description: The phone number to send the audio to (with country code)
+      description: The recipient's phone number with country code
       required: true
       example: "+1234567890"
       selector:
         text:
+          type: tel
     audio_url:
       name: Audio URL
-      description: URL or base64 encoded audio content
+      description: URL to the audio file or base64 encoded content
       required: true
       example: "https://example.com/audio.mp3"
       selector:
         text:
+          type: url
     delay:
-      name: Delay
-      description: Delay in milliseconds before sending
+      name: Delay (ms)
+      description: Wait time before sending
       required: false
       default: 0
+      advanced: true
       selector:
         number:
           min: 0
           max: 60000
+          step: 100
           unit_of_measurement: ms
+          mode: slider
 
 send_sticker:
   name: Send Sticker
-  description: Send a sticker via WhatsApp
+  description: Send a sticker via WhatsApp. WebP format recommended.
+  target:
+    device:
+      integration: evolution_api
   fields:
     phone_number:
       name: Phone Number
-      description: The phone number to send the sticker to (with country code)
+      description: The recipient's phone number with country code
       required: true
       example: "+1234567890"
       selector:
         text:
+          type: tel
     sticker_url:
       name: Sticker URL
-      description: URL or base64 encoded sticker (WebP format recommended)
+      description: URL to the sticker (WebP format) or base64 encoded content
       required: true
       example: "https://example.com/sticker.webp"
       selector:
         text:
+          type: url
     delay:
-      name: Delay
-      description: Delay in milliseconds before sending
+      name: Delay (ms)
+      description: Wait time before sending
       required: false
       default: 0
+      advanced: true
       selector:
         number:
           min: 0
           max: 60000
+          step: 100
           unit_of_measurement: ms
+          mode: slider
 
 send_location:
   name: Send Location
-  description: Send a location via WhatsApp
+  description: Share a location via WhatsApp. Great for sending your home location or meeting points.
+  target:
+    device:
+      integration: evolution_api
   fields:
     phone_number:
       name: Phone Number
-      description: The phone number to send the location to (with country code)
+      description: The recipient's phone number with country code
       required: true
       example: "+1234567890"
       selector:
         text:
+          type: tel
     latitude:
       name: Latitude
-      description: Latitude of the location
+      description: Latitude coordinate (-90 to 90)
       required: true
       example: 37.7749
       selector:
@@ -181,7 +220,7 @@ send_location:
           mode: box
     longitude:
       name: Longitude
-      description: Longitude of the location
+      description: Longitude coordinate (-180 to 180)
       required: true
       example: -122.4194
       selector:
@@ -192,43 +231,50 @@ send_location:
           mode: box
     name:
       name: Location Name
-      description: Name of the location
+      description: Display name for the location
       required: false
       example: "Home"
       selector:
         text:
     address:
       name: Address
-      description: Address of the location
+      description: Full address to display
       required: false
       example: "123 Main St, City, Country"
       selector:
         text:
     delay:
-      name: Delay
-      description: Delay in milliseconds before sending
+      name: Delay (ms)
+      description: Wait time before sending
       required: false
       default: 0
+      advanced: true
       selector:
         number:
           min: 0
           max: 60000
+          step: 100
           unit_of_measurement: ms
+          mode: slider
 
 send_contact:
-  name: Send Contact
-  description: Send a contact card via WhatsApp
+  name: Send Contact Card
+  description: Share a contact's information via WhatsApp.
+  target:
+    device:
+      integration: evolution_api
   fields:
     phone_number:
       name: Phone Number
-      description: The phone number to send the contact to (with country code)
+      description: The recipient's phone number with country code
       required: true
       example: "+1234567890"
       selector:
         text:
+          type: tel
     contact_name:
       name: Contact Name
-      description: Full name of the contact
+      description: Full name of the contact to share
       required: true
       example: "John Doe"
       selector:
@@ -240,42 +286,50 @@ send_contact:
       example: "+1987654321"
       selector:
         text:
+          type: tel
     contact_email:
       name: Contact Email
       description: Email address of the contact
       required: false
       example: "john@example.com"
+      advanced: true
       selector:
         text:
+          type: email
     contact_organization:
-      name: Contact Organization
-      description: Organization of the contact
+      name: Organization
+      description: Company or organization name
       required: false
       example: "Acme Inc."
+      advanced: true
       selector:
         text:
 
 send_reaction:
   name: Send Reaction
-  description: Send a reaction to a message
+  description: React to a message with an emoji.
+  target:
+    device:
+      integration: evolution_api
   fields:
     phone_number:
       name: Phone Number
-      description: The phone number of the chat (with country code)
+      description: The chat's phone number with country code
       required: true
       example: "+1234567890"
       selector:
         text:
+          type: tel
     message_id:
       name: Message ID
-      description: The ID of the message to react to
+      description: The unique ID of the message to react to
       required: true
       example: "BAE5F5A632EAE722"
       selector:
         text:
     reaction:
-      name: Reaction
-      description: The emoji reaction to send (empty string to remove reaction)
+      name: Reaction Emoji
+      description: The emoji to react with (leave empty to remove reaction)
       required: true
       example: "👍"
       selector:
@@ -283,25 +337,29 @@ send_reaction:
 
 send_poll:
   name: Send Poll
-  description: Send a poll via WhatsApp
+  description: Create and send a poll to gather opinions via WhatsApp.
+  target:
+    device:
+      integration: evolution_api
   fields:
     phone_number:
       name: Phone Number
-      description: The phone number to send the poll to (with country code)
+      description: The recipient's phone number with country code
       required: true
       example: "+1234567890"
       selector:
         text:
+          type: tel
     poll_name:
-      name: Poll Name
-      description: The question or title of the poll
+      name: Poll Question
+      description: The question or title of your poll
       required: true
       example: "What's your favorite color?"
       selector:
         text:
     poll_options:
       name: Poll Options
-      description: List of poll options (comma-separated)
+      description: List of options separated by commas
       required: true
       example: "Red, Blue, Green, Yellow"
       selector:
@@ -309,28 +367,34 @@ send_poll:
           multiline: true
     max_selections:
       name: Max Selections
-      description: Maximum number of options a user can select
+      description: How many options can be selected (1 for single choice)
       required: false
       default: 1
       selector:
         number:
           min: 1
           max: 10
-          mode: box
+          mode: slider
     delay:
-      name: Delay
-      description: Delay in milliseconds before sending
+      name: Delay (ms)
+      description: Wait time before sending
       required: false
       default: 0
+      advanced: true
       selector:
         number:
           min: 0
           max: 60000
+          step: 100
           unit_of_measurement: ms
+          mode: slider
 
 check_number:
   name: Check WhatsApp Number
-  description: Check if a phone number is registered on WhatsApp
+  description: Verify if a phone number is registered on WhatsApp.
+  target:
+    device:
+      integration: evolution_api
   fields:
     phone_number:
       name: Phone Number
@@ -339,3 +403,13 @@ check_number:
       example: "+1234567890"
       selector:
         text:
+          type: tel
+
+# New service for fetching groups
+refresh_groups:
+  name: Refresh Groups List
+  description: Fetch the latest list of WhatsApp groups. Results are stored in the Groups sensor.
+  target:
+    device:
+      integration: evolution_api
+  fields: {}

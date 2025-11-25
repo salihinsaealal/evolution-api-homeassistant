@@ -11,7 +11,7 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import (
@@ -44,6 +44,7 @@ async def async_setup_entry(
     async_add_entities(
         [
             EvolutionApiConnectionSensor(coordinator, entry, instance_id, server_url),
+            EvolutionApiGroupsSensor(hass, entry, instance_id, server_url),
         ]
     )
 
@@ -140,3 +141,91 @@ class EvolutionApiConnectionSensor(CoordinatorEntity, SensorEntity):
     def available(self) -> bool:
         """Return True if entity is available."""
         return self.coordinator.last_update_success
+
+
+class EvolutionApiGroupsSensor(SensorEntity):
+    """Sensor showing the number of groups (updated on demand via button)."""
+
+    _attr_has_entity_name = True
+    _attr_icon = "mdi:account-group"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+
+    def __init__(
+        self,
+        hass: HomeAssistant,
+        entry: ConfigEntry,
+        instance_id: str,
+        server_url: str,
+    ) -> None:
+        """Initialize the sensor."""
+        self.hass = hass
+        self._attr_unique_id = f"{entry.entry_id}_groups_count"
+        self._attr_name = "Groups"
+        self._instance_id = instance_id
+        self._server_url = server_url
+        self._entry = entry
+        self._groups: list[dict[str, Any]] = []
+
+    async def async_added_to_hass(self) -> None:
+        """Run when entity about to be added to hass."""
+        await super().async_added_to_hass()
+        
+        # Listen for groups update events
+        self.async_on_remove(
+            self.hass.bus.async_listen(
+                f"{DOMAIN}_groups_updated",
+                self._handle_groups_updated,
+            )
+        )
+        
+        # Load any existing groups data
+        if "groups" in self.hass.data[DOMAIN].get(self._entry.entry_id, {}):
+            self._groups = self.hass.data[DOMAIN][self._entry.entry_id]["groups"]
+
+    @callback
+    def _handle_groups_updated(self, event) -> None:
+        """Handle groups updated event."""
+        if event.data.get("entry_id") == self._entry.entry_id:
+            self._groups = self.hass.data[DOMAIN][self._entry.entry_id].get("groups", [])
+            self.async_write_ha_state()
+
+    @property
+    def device_info(self) -> DeviceInfo:
+        """Return device information."""
+        return DeviceInfo(
+            identifiers={(DOMAIN, self._entry.entry_id)},
+            name=f"Evolution API ({self._instance_id})",
+            manufacturer="Evolution API",
+            model="WhatsApp Instance",
+            configuration_url=self._server_url,
+        )
+
+    @property
+    def native_value(self) -> int:
+        """Return the number of groups."""
+        return len(self._groups)
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Return extra state attributes."""
+        # Return simplified group list as attribute
+        groups_list = []
+        for group in self._groups[:50]:  # Limit to 50 groups to avoid huge attributes
+            groups_list.append({
+                "id": group.get("id", ""),
+                "name": group.get("subject", ""),
+                "participants": group.get("size", 0),
+            })
+        
+        return {
+            "groups": groups_list,
+            "total_groups": len(self._groups),
+            "last_updated": self.hass.data[DOMAIN].get(self._entry.entry_id, {}).get(
+                "groups_last_updated", "Never"
+            ),
+        }
+
+    @property
+    def available(self) -> bool:
+        """Return True if entity is available."""
+        return True  # Always available, just may have no data

@@ -10,6 +10,8 @@ import async_timeout
 
 from .const import (
     API_ENDPOINT_CONNECTION_STATE,
+    API_ENDPOINT_FETCH_ALL_GROUPS,
+    API_ENDPOINT_FETCH_PROFILE,
     API_ENDPOINT_SEND_TEXT,
     API_ENDPOINT_SEND_MEDIA,
     API_ENDPOINT_SEND_AUDIO,
@@ -416,3 +418,52 @@ class EvolutionApiClient:
         """Fetch the profile picture URL of a contact."""
         payload = {"number": number}
         return await self._request("POST", API_ENDPOINT_FETCH_PROFILE_PICTURE, payload)
+
+    # ==================== Group Methods ====================
+
+    async def fetch_all_groups(self, get_participants: bool = False) -> list[dict[str, Any]]:
+        """Fetch all groups the instance is part of."""
+        url = f"{self._server_url}{API_ENDPOINT_FETCH_ALL_GROUPS}/{self._instance_id}"
+        if get_participants:
+            url += "?getParticipants=true"
+        
+        try:
+            async with async_timeout.timeout(DEFAULT_TIMEOUT):
+                async with self._session.get(
+                    url, headers=self.headers, ssl=self._verify_ssl
+                ) as response:
+                    result = await self._handle_response(response)
+                    # API returns a list directly
+                    if isinstance(result, list):
+                        return result
+                    return []
+        except (asyncio.TimeoutError, aiohttp.ClientError) as err:
+            _LOGGER.error("Error fetching groups: %s", err)
+            raise EvolutionApiConnectionError(f"Error fetching groups: {err}") from err
+
+    # ==================== Profile Methods ====================
+
+    async def fetch_profile(self, number: str) -> dict[str, Any]:
+        """Fetch profile information for a number."""
+        payload = {"number": number}
+        return await self._request("POST", API_ENDPOINT_FETCH_PROFILE, payload)
+
+    async def get_instance_info(self) -> dict[str, Any]:
+        """Get comprehensive instance information."""
+        try:
+            connection_state = await self.get_connection_state()
+            instance_data = connection_state.get("instance", {})
+            
+            return {
+                "state": instance_data.get("state", "unknown"),
+                "owner": instance_data.get("owner", ""),
+                "profile_name": instance_data.get("profileName", ""),
+                "profile_picture_url": instance_data.get("profilePictureUrl", ""),
+                "phone_number": instance_data.get("owner", "").replace("@s.whatsapp.net", ""),
+            }
+        except EvolutionApiError as err:
+            _LOGGER.error("Error getting instance info: %s", err)
+            return {
+                "state": "error",
+                "error": str(err),
+            }

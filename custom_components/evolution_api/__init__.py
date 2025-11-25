@@ -12,7 +12,7 @@ from homeassistant.core import HomeAssistant, ServiceCall, callback
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-PLATFORMS = [Platform.SENSOR]
+PLATFORMS = [Platform.SENSOR, Platform.BUTTON]
 
 from .api import EvolutionApiClient, EvolutionApiError
 from .const import (
@@ -56,6 +56,8 @@ from .const import (
     SERVICE_SEND_STICKER,
     SERVICE_SEND_TEXT,
 )
+
+SERVICE_REFRESH_GROUPS = "refresh_groups"
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -340,6 +342,30 @@ async def _async_register_services(hass: HomeAssistant) -> None:
             _LOGGER.error("Failed to check number: %s", err)
             raise
 
+    async def async_refresh_groups(call: ServiceCall) -> None:
+        """Handle refresh groups service call."""
+        client = _get_client(hass)
+        try:
+            _LOGGER.info("Refreshing groups list")
+            groups = await client.fetch_all_groups(get_participants=False)
+            
+            # Store groups in hass.data for all entries
+            for entry_id, entry_data in hass.data[DOMAIN].items():
+                if "client" in entry_data:
+                    entry_data["groups"] = groups
+                    entry_data["groups_count"] = len(groups)
+                    
+                    # Fire event so sensors can update
+                    hass.bus.async_fire(
+                        f"{DOMAIN}_groups_updated",
+                        {"entry_id": entry_id, "count": len(groups)},
+                    )
+            
+            _LOGGER.info("Found %d groups", len(groups))
+        except EvolutionApiError as err:
+            _LOGGER.error("Failed to refresh groups: %s", err)
+            raise
+
     # Register all services
     hass.services.async_register(
         DOMAIN, SERVICE_SEND_TEXT, async_send_text, schema=SERVICE_SEND_TEXT_SCHEMA
@@ -368,6 +394,9 @@ async def _async_register_services(hass: HomeAssistant) -> None:
     hass.services.async_register(
         DOMAIN, SERVICE_CHECK_NUMBER, async_check_number, schema=SERVICE_CHECK_NUMBER_SCHEMA
     )
+    hass.services.async_register(
+        DOMAIN, SERVICE_REFRESH_GROUPS, async_refresh_groups
+    )
 
     _LOGGER.info("Evolution API services registered")
 
@@ -385,6 +414,7 @@ def _async_unregister_services(hass: HomeAssistant) -> None:
         SERVICE_SEND_REACTION,
         SERVICE_SEND_POLL,
         SERVICE_CHECK_NUMBER,
+        SERVICE_REFRESH_GROUPS,
     ]
     for service in services:
         hass.services.async_remove(DOMAIN, service)

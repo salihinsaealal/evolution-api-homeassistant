@@ -48,6 +48,14 @@ API_ENDPOINT_DELETE_MESSAGE: Final = "/chat/deleteMessageForEveryone"
 API_ENDPOINT_SEND_PRESENCE: Final = "/chat/sendPresence"
 API_ENDPOINT_FETCH_PROFILE_PICTURE: Final = "/chat/fetchProfilePictureUrl"
 
+# API endpoints - Group Controller
+API_ENDPOINT_FETCH_ALL_GROUPS: Final = "/group/fetchAllGroups"
+API_ENDPOINT_FIND_GROUP: Final = "/group/findGroupInfos"
+API_ENDPOINT_GROUP_PARTICIPANTS: Final = "/group/participants"
+
+# API endpoints - Profile
+API_ENDPOINT_FETCH_PROFILE: Final = "/chat/fetchProfile"
+
 # Service names
 SERVICE_SEND_TEXT: Final = "send_text"
 SERVICE_SEND_MEDIA: Final = "send_media"
