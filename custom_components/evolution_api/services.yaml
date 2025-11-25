@@ -187,12 +187,19 @@ send_sticker:
   fields:
     phone_number:
       name: Phone Number
-      description: The recipient's phone number with country code
-      required: true
+      description: The recipient's phone number with country code. Leave empty if sending to a group.
+      required: false
       example: "+1234567890"
       selector:
         text:
           type: tel
+    group_id:
+      name: Group
+      description: Group JID to send to (e.g., 123456789@g.us).
+      required: false
+      selector:
+        text:
+          suffix: "@g.us"
     sticker_url:
       name: Sticker URL
       description: URL to the sticker (WebP format) or base64 encoded content
@@ -296,12 +303,19 @@ send_contact:
   fields:
     phone_number:
       name: Phone Number
-      description: The recipient's phone number with country code
-      required: true
+      description: The recipient's phone number with country code. Leave empty if sending to a group.
+      required: false
       example: "+1234567890"
       selector:
         text:
           type: tel
+    group_id:
+      name: Group
+      description: Group JID to send to (e.g., 123456789@g.us).
+      required: false
+      selector:
+        text:
+          suffix: "@g.us"
     contact_name:
       name: Contact Name
       description: Full name of the contact to share
@@ -344,12 +358,19 @@ send_reaction:
   fields:
     phone_number:
       name: Phone Number
-      description: The chat's phone number with country code
-      required: true
+      description: The chat's phone number with country code. Leave empty if reacting in a group.
+      required: false
       example: "+1234567890"
       selector:
         text:
           type: tel
+    group_id:
+      name: Group
+      description: Group JID where the message is. Leave empty if reacting in a private chat.
+      required: false
+      selector:
+        text:
+          suffix: "@g.us"
     message_id:
       name: Message ID
       description: The unique ID of the message to react to
