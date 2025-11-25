@@ -423,9 +423,8 @@ class EvolutionApiClient:
 
     async def fetch_all_groups(self, get_participants: bool = False) -> list[dict[str, Any]]:
         """Fetch all groups the instance is part of."""
-        url = f"{self._server_url}{API_ENDPOINT_FETCH_ALL_GROUPS}/{self._instance_id}"
-        if get_participants:
-            url += "?getParticipants=true"
+        # API requires getParticipants query parameter to be present
+        url = f"{self._server_url}{API_ENDPOINT_FETCH_ALL_GROUPS}/{self._instance_id}?getParticipants={'true' if get_participants else 'false'}"
         
         try:
             async with async_timeout.timeout(DEFAULT_TIMEOUT):
