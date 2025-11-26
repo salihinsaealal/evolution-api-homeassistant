@@ -1,30 +1,30 @@
-# Evolution API Services
-
 send_text:
   name: Send Text Message
-  description: Send a text message via WhatsApp. Use this service in automations to send notifications to any WhatsApp number or group.
+  description: Send a text message via WhatsApp. Use this service in automations to
+    send notifications to any WhatsApp number or group.
   fields:
     phone_number:
       name: Phone Number
-      description: The recipient's phone number with country code (e.g., +1234567890). Leave empty if sending to a group.
+      description: The recipient's phone number with country code (e.g., +1234567890).
+        Leave empty if sending to a group.
       required: false
-      example: "+1234567890"
+      example: '+1234567890'
       selector:
-        text:
-          type: tel
+        text: {}
     group_id:
       name: Group
-      description: Select a group to send the message to. Use the Groups sensor attributes to find group IDs, or paste the group JID directly (e.g., 123456789@g.us).
+      description: Select a group to send the message to. Use the Groups sensor attributes
+        to find group IDs, or paste the group JID directly (e.g., 123456789@g.us).
       required: false
-      example: "120363418454200327@g.us"
+      example: 120363418454200327@g.us
       selector:
         text:
-          suffix: "@g.us"
+          suffix: '@g.us'
     message:
       name: Message
       description: The text message to send. Supports emojis and line breaks.
       required: true
-      example: "Hello from Home Assistant! 👋"
+      example: Hello from Home Assistant! 👋
       selector:
         text:
           multiline: true
@@ -47,7 +47,7 @@ send_text:
       required: false
       default: true
       selector:
-        boolean:
+        boolean: null
     mention_all:
       name: Mention Everyone
       description: Mention all participants (only works in group chats)
@@ -55,51 +55,51 @@ send_text:
       default: false
       advanced: true
       selector:
-        boolean:
-
+        boolean: null
 send_media:
   name: Send Media
-  description: Send an image, video, or document via WhatsApp. Supports URLs or base64 encoded content.
+  description: Send an image, video, or document via WhatsApp. Supports URLs or base64
+    encoded content.
   fields:
     phone_number:
       name: Phone Number
-      description: The recipient's phone number with country code. Leave empty if sending to a group.
+      description: The recipient's phone number with country code. Leave empty if
+        sending to a group.
       required: false
-      example: "+1234567890"
+      example: '+1234567890'
       selector:
-        text:
-          type: tel
+        text: {}
     group_id:
       name: Group
-      description: Group JID to send to (e.g., 123456789@g.us). Leave empty if sending to a phone number.
+      description: Group JID to send to (e.g., 123456789@g.us). Leave empty if sending
+        to a phone number.
       required: false
-      example: "120363418454200327@g.us"
+      example: 120363418454200327@g.us
       selector:
         text:
-          suffix: "@g.us"
+          suffix: '@g.us'
     media_url:
       name: Media URL
       description: URL to the media file or base64 encoded content
       required: true
-      example: "https://example.com/image.jpg"
+      example: https://example.com/image.jpg
       selector:
-        text:
-          type: url
+        text: {}
     media_type:
       name: Media Type
       description: Type of media being sent
       required: true
-      default: "image"
+      default: image
       selector:
         select:
           mode: dropdown
           options:
-            - label: "📷 Image"
-              value: image
-            - label: "🎬 Video"
-              value: video
-            - label: "📄 Document"
-              value: document
+          - label: 📷 Image
+            value: image
+          - label: 🎬 Video
+            value: video
+          - label: 📄 Document
+            value: document
     caption:
       name: Caption
       description: Caption text to display with the media
@@ -113,7 +113,7 @@ send_media:
       required: false
       advanced: true
       selector:
-        text:
+        text: null
     delay:
       name: Delay (ms)
       description: Wait time before sending
@@ -127,34 +127,32 @@ send_media:
           step: 100
           unit_of_measurement: ms
           mode: slider
-
 send_audio:
   name: Send Audio Message
   description: Send a voice note or audio file via WhatsApp.
   fields:
     phone_number:
       name: Phone Number
-      description: The recipient's phone number with country code. Leave empty if sending to a group.
+      description: The recipient's phone number with country code. Leave empty if
+        sending to a group.
       required: false
-      example: "+1234567890"
+      example: '+1234567890'
       selector:
-        text:
-          type: tel
+        text: {}
     group_id:
       name: Group
       description: Group JID to send to (e.g., 123456789@g.us).
       required: false
       selector:
         text:
-          suffix: "@g.us"
+          suffix: '@g.us'
     audio_url:
       name: Audio URL
       description: URL to the audio file or base64 encoded content
       required: true
-      example: "https://example.com/audio.mp3"
+      example: https://example.com/audio.mp3
       selector:
-        text:
-          type: url
+        text: {}
     delay:
       name: Delay (ms)
       description: Wait time before sending
@@ -168,34 +166,32 @@ send_audio:
           step: 100
           unit_of_measurement: ms
           mode: slider
-
 send_sticker:
   name: Send Sticker
   description: Send a sticker via WhatsApp. WebP format recommended.
   fields:
     phone_number:
       name: Phone Number
-      description: The recipient's phone number with country code. Leave empty if sending to a group.
+      description: The recipient's phone number with country code. Leave empty if
+        sending to a group.
       required: false
-      example: "+1234567890"
+      example: '+1234567890'
       selector:
-        text:
-          type: tel
+        text: {}
     group_id:
       name: Group
       description: Group JID to send to (e.g., 123456789@g.us).
       required: false
       selector:
         text:
-          suffix: "@g.us"
+          suffix: '@g.us'
     sticker_url:
       name: Sticker URL
       description: URL to the sticker (WebP format) or base64 encoded content
       required: true
-      example: "https://example.com/sticker.webp"
+      example: https://example.com/sticker.webp
       selector:
-        text:
-          type: url
+        text: {}
     delay:
       name: Delay (ms)
       description: Wait time before sending
@@ -209,26 +205,26 @@ send_sticker:
           step: 100
           unit_of_measurement: ms
           mode: slider
-
 send_location:
   name: Send Location
-  description: Share a location via WhatsApp. Great for sending your home location or meeting points.
+  description: Share a location via WhatsApp. Great for sending your home location
+    or meeting points.
   fields:
     phone_number:
       name: Phone Number
-      description: The recipient's phone number with country code. Leave empty if sending to a group.
+      description: The recipient's phone number with country code. Leave empty if
+        sending to a group.
       required: false
-      example: "+1234567890"
+      example: '+1234567890'
       selector:
-        text:
-          type: tel
+        text: {}
     group_id:
       name: Group
       description: Group JID to send to (e.g., 123456789@g.us).
       required: false
       selector:
         text:
-          suffix: "@g.us"
+          suffix: '@g.us'
     latitude:
       name: Latitude
       description: Latitude coordinate (-90 to 90)
@@ -238,7 +234,7 @@ send_location:
         number:
           min: -90
           max: 90
-          step: 0.000001
+          step: 1.0e-06
           mode: box
     longitude:
       name: Longitude
@@ -249,22 +245,22 @@ send_location:
         number:
           min: -180
           max: 180
-          step: 0.000001
+          step: 1.0e-06
           mode: box
     name:
       name: Location Name
       description: Display name for the location
       required: false
-      example: "Home"
+      example: Home
       selector:
-        text:
+        text: null
     address:
       name: Address
       description: Full address to display
       required: false
-      example: "123 Main St, City, Country"
+      example: 123 Main St, City, Country
       selector:
-        text:
+        text: null
     delay:
       name: Delay (ms)
       description: Wait time before sending
@@ -278,124 +274,122 @@ send_location:
           step: 100
           unit_of_measurement: ms
           mode: slider
-
 send_contact:
   name: Send Contact Card
   description: Share a contact's information via WhatsApp.
   fields:
     phone_number:
       name: Phone Number
-      description: The recipient's phone number with country code. Leave empty if sending to a group.
+      description: The recipient's phone number with country code. Leave empty if
+        sending to a group.
       required: false
-      example: "+1234567890"
+      example: '+1234567890'
       selector:
-        text:
-          type: tel
+        text: {}
     group_id:
       name: Group
       description: Group JID to send to (e.g., 123456789@g.us).
       required: false
       selector:
         text:
-          suffix: "@g.us"
+          suffix: '@g.us'
     contact_name:
       name: Contact Name
       description: Full name of the contact to share
       required: true
-      example: "John Doe"
+      example: John Doe
       selector:
-        text:
+        text: null
     contact_phone:
       name: Contact Phone
       description: Phone number of the contact
       required: true
-      example: "+1987654321"
+      example: '+1987654321'
       selector:
-        text:
-          type: tel
+        text: {}
     contact_email:
       name: Contact Email
       description: Email address of the contact
       required: false
-      example: "john@example.com"
+      example: john@example.com
       advanced: true
       selector:
-        text:
-          type: email
+        text: {}
     contact_organization:
       name: Organization
       description: Company or organization name
       required: false
-      example: "Acme Inc."
+      example: Acme Inc.
       advanced: true
       selector:
-        text:
-
+        text: null
 send_reaction:
   name: Send Reaction
   description: React to a message with an emoji.
   fields:
     phone_number:
       name: Phone Number
-      description: The chat's phone number with country code. Leave empty if reacting in a group.
+      description: The chat's phone number with country code. Leave empty if reacting
+        in a group.
       required: false
-      example: "+1234567890"
+      example: '+1234567890'
       selector:
-        text:
-          type: tel
+        text: {}
     group_id:
       name: Group
-      description: Group JID where the message is. Leave empty if reacting in a private chat.
+      description: Group JID where the message is. Leave empty if reacting in a private
+        chat.
       required: false
       selector:
         text:
-          suffix: "@g.us"
+          suffix: '@g.us'
     message_id:
       name: Message ID
       description: The unique ID of the message to react to
       required: true
-      example: "BAE5F5A632EAE722"
+      example: BAE5F5A632EAE722
       selector:
-        text:
+        text: null
     reaction:
       name: Reaction Emoji
       description: The emoji to react with (leave empty to remove reaction)
       required: true
-      example: "👍"
+      example: 👍
       selector:
-        text:
-
+        text: null
 send_poll:
   name: Send Poll
-  description: Create and send a poll to gather opinions via WhatsApp. Perfect for group decisions!
+  description: Create and send a poll to gather opinions via WhatsApp. Perfect for
+    group decisions!
   fields:
     phone_number:
       name: Phone Number
-      description: The recipient's phone number with country code. Leave empty if sending to a group.
+      description: The recipient's phone number with country code. Leave empty if
+        sending to a group.
       required: false
-      example: "+1234567890"
+      example: '+1234567890'
       selector:
-        text:
-          type: tel
+        text: {}
     group_id:
       name: Group
-      description: Group JID to send the poll to (e.g., 123456789@g.us). Polls work great in groups!
+      description: Group JID to send the poll to (e.g., 123456789@g.us). Polls work
+        great in groups!
       required: false
       selector:
         text:
-          suffix: "@g.us"
+          suffix: '@g.us'
     poll_name:
       name: Poll Question
       description: The question or title of your poll
       required: true
-      example: "What's your favorite color?"
+      example: What's your favorite color?
       selector:
-        text:
+        text: null
     poll_options:
       name: Poll Options
       description: List of options separated by commas
       required: true
-      example: "Red, Blue, Green, Yellow"
+      example: Red, Blue, Green, Yellow
       selector:
         text:
           multiline: true
@@ -422,7 +416,6 @@ send_poll:
           step: 100
           unit_of_measurement: ms
           mode: slider
-
 check_number:
   name: Check WhatsApp Number
   description: Verify if a phone number is registered on WhatsApp.
@@ -431,13 +424,11 @@ check_number:
       name: Phone Number
       description: The phone number to check (with country code)
       required: true
-      example: "+1234567890"
+      example: '+1234567890'
       selector:
-        text:
-          type: tel
-
-# New service for fetching groups
+        text: {}
 refresh_groups:
   name: Refresh Groups List
-  description: Fetch the latest list of WhatsApp groups. Results are stored in the Groups sensor.
+  description: Fetch the latest list of WhatsApp groups. Results are stored in the
+    Groups sensor.
   fields: {}
