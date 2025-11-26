@@ -46,5 +46,254 @@
       "invalid_auth": "Invalid API key.",
       "instance_not_connected": "The WhatsApp instance is not connected."
     }
+  },
+  "services": {
+    "send_text": {
+      "name": "Send Text Message",
+      "description": "Send a WhatsApp text message to a phone number or group.",
+      "fields": {
+        "phone_number": {
+          "name": "Phone Number",
+          "description": "Recipient's phone number with country code (e.g., +1234567890). Leave empty if sending to a group."
+        },
+        "group_id": {
+          "name": "Group",
+          "description": "Group JID to send to (e.g., 123456789@g.us). Leave empty if sending to a phone number."
+        },
+        "message": {
+          "name": "Message",
+          "description": "Text message to send. Supports emojis and multi-line messages."
+        },
+        "delay": {
+          "name": "Delay (ms)",
+          "description": "Optional typing delay before sending (in milliseconds)."
+        },
+        "link_preview": {
+          "name": "Show Link Preview",
+          "description": "Display a card preview if the message contains a URL."
+        },
+        "mention_all": {
+          "name": "Mention Everyone",
+          "description": "Mention all participants (only works in group chats)."
+        }
+      }
+    },
+    "send_media": {
+      "name": "Send Media",
+      "description": "Send an image, video, or document via WhatsApp.",
+      "fields": {
+        "phone_number": {
+          "name": "Phone Number",
+          "description": "Recipient's phone number with country code. Leave empty if sending to a group."
+        },
+        "group_id": {
+          "name": "Group",
+          "description": "Group JID to send to (e.g., 123456789@g.us). Leave empty if sending to a phone number."
+        },
+        "media_url": {
+          "name": "Media URL",
+          "description": "URL to the media file or base64 encoded content."
+        },
+        "media_type": {
+          "name": "Media Type",
+          "description": "Type of media to send (image, video, or document)."
+        },
+        "caption": {
+          "name": "Caption",
+          "description": "Optional caption text shown with the media."
+        },
+        "filename": {
+          "name": "Filename",
+          "description": "Custom filename (required for documents)."
+        },
+        "delay": {
+          "name": "Delay (ms)",
+          "description": "Optional wait time before sending (in milliseconds)."
+        }
+      }
+    },
+    "send_audio": {
+      "name": "Send Audio",
+      "description": "Send a voice note or audio file via WhatsApp.",
+      "fields": {
+        "phone_number": {
+          "name": "Phone Number",
+          "description": "Recipient's phone number with country code. Leave empty if sending to a group."
+        },
+        "group_id": {
+          "name": "Group",
+          "description": "Group JID to send to (e.g., 123456789@g.us). Leave empty if sending to a phone number."
+        },
+        "audio_url": {
+          "name": "Audio URL",
+          "description": "URL to the audio file or base64 encoded content."
+        },
+        "delay": {
+          "name": "Delay (ms)",
+          "description": "Optional wait time before sending (in milliseconds)."
+        }
+      }
+    },
+    "send_sticker": {
+      "name": "Send Sticker",
+      "description": "Send a sticker (WebP) via WhatsApp.",
+      "fields": {
+        "phone_number": {
+          "name": "Phone Number",
+          "description": "Recipient's phone number with country code. Leave empty if sending to a group."
+        },
+        "group_id": {
+          "name": "Group",
+          "description": "Group JID to send to (e.g., 123456789@g.us). Leave empty if sending to a phone number."
+        },
+        "sticker_url": {
+          "name": "Sticker URL",
+          "description": "URL to the sticker (WebP) or base64 encoded content."
+        },
+        "delay": {
+          "name": "Delay (ms)",
+          "description": "Optional wait time before sending (in milliseconds)."
+        }
+      }
+    },
+    "send_location": {
+      "name": "Send Location",
+      "description": "Share a location pin via WhatsApp.",
+      "fields": {
+        "phone_number": {
+          "name": "Phone Number",
+          "description": "Recipient's phone number with country code. Leave empty if sending to a group."
+        },
+        "group_id": {
+          "name": "Group",
+          "description": "Group JID to send to (e.g., 123456789@g.us). Leave empty if sending to a phone number."
+        },
+        "latitude": {
+          "name": "Latitude",
+          "description": "Latitude coordinate (-90 to 90)."
+        },
+        "longitude": {
+          "name": "Longitude",
+          "description": "Longitude coordinate (-180 to 180)."
+        },
+        "name": {
+          "name": "Location Name",
+          "description": "Display name for the location."
+        },
+        "address": {
+          "name": "Address",
+          "description": "Full address to display."
+        },
+        "delay": {
+          "name": "Delay (ms)",
+          "description": "Optional wait time before sending (in milliseconds)."
+        }
+      }
+    },
+    "send_contact": {
+      "name": "Send Contact Card",
+      "description": "Share a contact card (vCard) via WhatsApp.",
+      "fields": {
+        "phone_number": {
+          "name": "Phone Number",
+          "description": "Recipient's phone number with country code. Leave empty if sending to a group."
+        },
+        "group_id": {
+          "name": "Group",
+          "description": "Group JID to send to (e.g., 123456789@g.us). Leave empty if sending to a phone number."
+        },
+        "contact_name": {
+          "name": "Contact Name",
+          "description": "Full name of the contact to share."
+        },
+        "contact_phone": {
+          "name": "Contact Phone",
+          "description": "Phone number of the contact."
+        },
+        "contact_email": {
+          "name": "Contact Email",
+          "description": "Email address of the contact."
+        },
+        "contact_organization": {
+          "name": "Organization",
+          "description": "Company or organization name."
+        }
+      }
+    },
+    "send_reaction": {
+      "name": "Send Reaction",
+      "description": "React to a message with an emoji.",
+      "fields": {
+        "phone_number": {
+          "name": "Phone Number",
+          "description": "Chat phone number with country code. Leave empty if reacting in a group."
+        },
+        "group_id": {
+          "name": "Group",
+          "description": "Group JID where the message is. Leave empty if reacting in a private chat."
+        },
+        "message_id": {
+          "name": "Message ID",
+          "description": "Unique ID of the message to react to."
+        },
+        "reaction": {
+          "name": "Reaction Emoji",
+          "description": "Emoji to react with. Leave empty to remove reaction."
+        }
+      }
+    },
+    "send_poll": {
+      "name": "Send Poll",
+      "description": "Create and send a poll to gather opinions via WhatsApp.",
+      "fields": {
+        "phone_number": {
+          "name": "Phone Number",
+          "description": "Recipient's phone number with country code. Leave empty if sending to a group."
+        },
+        "group_id": {
+          "name": "Group",
+          "description": "Group JID to send to (e.g., 123456789@g.us). Polls work best in groups."
+        },
+        "poll_name": {
+          "name": "Poll Question",
+          "description": "Question or title of the poll."
+        },
+        "poll_options": {
+          "name": "Poll Options",
+          "description": "Comma-separated list of options (e.g., Red, Blue, Green)."
+        },
+        "max_selections": {
+          "name": "Max Selections",
+          "description": "Maximum number of options each user can select."
+        },
+        "delay": {
+          "name": "Delay (ms)",
+          "description": "Optional wait time before sending (in milliseconds)."
+        }
+      }
+    },
+    "check_number": {
+      "name": "Check WhatsApp Number",
+      "description": "Verify if a phone number is registered on WhatsApp.",
+      "fields": {
+        "phone_number": {
+          "name": "Phone Number",
+          "description": "Phone number to check (with country code)."
+        }
+      }
+    },
+    "refresh_groups": {
+      "name": "Refresh Groups List",
+      "description": "Fetch the latest WhatsApp groups. Results are stored in the Groups sensor."
+    }
+  },
+  "selector": {
+    "media_type": {
+      "options": {
+        "image": "Image",
+        "video": "Video",
+        "document": "Document"
+      }
+    }
   }
 }
