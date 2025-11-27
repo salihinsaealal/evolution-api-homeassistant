@@ -229,24 +229,16 @@ send_location:
       name: Latitude
       description: Latitude coordinate (-90 to 90)
       required: true
-      example: 37.7749
+      example: '37.7749'
       selector:
-        number:
-          min: -90
-          max: 90
-          step: 0.000001
-          mode: box
+        text:
     longitude:
       name: Longitude
       description: Longitude coordinate (-180 to 180)
       required: true
-      example: -122.4194
+      example: '-122.4194'
       selector:
-        number:
-          min: -180
-          max: 180
-          step: 0.000001
-          mode: box
+        text:
     name:
       name: Location Name
       description: Display name for the location
