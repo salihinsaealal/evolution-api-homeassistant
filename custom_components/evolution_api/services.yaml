@@ -1,36 +1,23 @@
 send_text:
-  name: Send Text Message
-  description: Send a text message via WhatsApp. Use this service in automations to
-    send notifications to any WhatsApp number or group.
   fields:
     phone_number:
-      name: Phone Number
-      description: The recipient's phone number with country code (e.g., +1234567890).
-        Leave empty if sending to a group.
       required: false
       example: '+1234567890'
       selector:
         text: {}
     group_id:
-      name: Group
-      description: Select a group to send the message to. Use the Groups sensor attributes
-        to find group IDs, or paste the group JID directly (e.g., 123456789@g.us).
       required: false
       example: 120363418454200327@g.us
       selector:
         text:
           suffix: '@g.us'
     message:
-      name: Message
-      description: The text message to send. Supports emojis and line breaks.
       required: true
       example: Hello from Home Assistant! 👋
       selector:
         text:
           multiline: true
     delay:
-      name: Delay (ms)
-      description: Wait time in milliseconds before sending (simulates typing)
       required: false
       default: 0
       advanced: true
@@ -42,52 +29,35 @@ send_text:
           unit_of_measurement: ms
           mode: slider
     link_preview:
-      name: Show Link Preview
-      description: Display a preview card if the message contains a URL
       required: false
       default: true
       selector:
         boolean: null
     mention_all:
-      name: Mention Everyone
-      description: Mention all participants (only works in group chats)
       required: false
       default: false
       advanced: true
       selector:
         boolean: null
 send_media:
-  name: Send Media
-  description: Send an image, video, or document via WhatsApp. Supports URLs or base64
-    encoded content.
   fields:
     phone_number:
-      name: Phone Number
-      description: The recipient's phone number with country code. Leave empty if
-        sending to a group.
       required: false
       example: '+1234567890'
       selector:
         text: {}
     group_id:
-      name: Group
-      description: Group JID to send to (e.g., 123456789@g.us). Leave empty if sending
-        to a phone number.
       required: false
       example: 120363418454200327@g.us
       selector:
         text:
           suffix: '@g.us'
     media_url:
-      name: Media URL
-      description: URL to the media file or base64 encoded content
       required: true
       example: https://example.com/image.jpg
       selector:
         text: {}
     media_type:
-      name: Media Type
-      description: Type of media being sent
       required: true
       default: image
       selector:
@@ -101,22 +71,16 @@ send_media:
           - label: 📄 Document
             value: document
     caption:
-      name: Caption
-      description: Caption text to display with the media
       required: false
       selector:
         text:
           multiline: true
     filename:
-      name: Filename
-      description: Custom filename (required for documents)
       required: false
       advanced: true
       selector:
         text: null
     delay:
-      name: Delay (ms)
-      description: Wait time before sending
       required: false
       default: 0
       advanced: true
@@ -128,34 +92,23 @@ send_media:
           unit_of_measurement: ms
           mode: slider
 send_audio:
-  name: Send Audio Message
-  description: Send a voice note or audio file via WhatsApp.
   fields:
     phone_number:
-      name: Phone Number
-      description: The recipient's phone number with country code. Leave empty if
-        sending to a group.
       required: false
       example: '+1234567890'
       selector:
         text: {}
     group_id:
-      name: Group
-      description: Group JID to send to (e.g., 123456789@g.us).
       required: false
       selector:
         text:
           suffix: '@g.us'
     audio_url:
-      name: Audio URL
-      description: URL to the audio file or base64 encoded content
       required: true
       example: https://example.com/audio.mp3
       selector:
         text: {}
     delay:
-      name: Delay (ms)
-      description: Wait time before sending
       required: false
       default: 0
       advanced: true
@@ -167,34 +120,23 @@ send_audio:
           unit_of_measurement: ms
           mode: slider
 send_sticker:
-  name: Send Sticker
-  description: Send a sticker via WhatsApp. WebP format recommended.
   fields:
     phone_number:
-      name: Phone Number
-      description: The recipient's phone number with country code. Leave empty if
-        sending to a group.
       required: false
       example: '+1234567890'
       selector:
         text: {}
     group_id:
-      name: Group
-      description: Group JID to send to (e.g., 123456789@g.us).
       required: false
       selector:
         text:
           suffix: '@g.us'
     sticker_url:
-      name: Sticker URL
-      description: URL to the sticker (WebP format) or base64 encoded content
       required: true
       example: https://example.com/sticker.webp
       selector:
         text: {}
     delay:
-      name: Delay (ms)
-      description: Wait time before sending
       required: false
       default: 0
       advanced: true
@@ -206,28 +148,18 @@ send_sticker:
           unit_of_measurement: ms
           mode: slider
 send_location:
-  name: Send Location
-  description: Share a location via WhatsApp. Great for sending your home location
-    or meeting points.
   fields:
     phone_number:
-      name: Phone Number
-      description: The recipient's phone number with country code. Leave empty if
-        sending to a group.
       required: false
       example: '+1234567890'
       selector:
         text: {}
     group_id:
-      name: Group
-      description: Group JID to send to (e.g., 123456789@g.us).
       required: false
       selector:
         text:
           suffix: '@g.us'
     latitude:
-      name: Latitude
-      description: Latitude coordinate (-90 to 90)
       required: true
       example: 37.7749
       selector:
@@ -237,8 +169,6 @@ send_location:
           step: 1.0e-06
           mode: box
     longitude:
-      name: Longitude
-      description: Longitude coordinate (-180 to 180)
       required: true
       example: -122.4194
       selector:
@@ -248,22 +178,16 @@ send_location:
           step: 1.0e-06
           mode: box
     name:
-      name: Location Name
-      description: Display name for the location
       required: false
       example: Home
       selector:
         text: null
     address:
-      name: Address
-      description: Full address to display
       required: false
       example: 123 Main St, City, Country
       selector:
         text: null
     delay:
-      name: Delay (ms)
-      description: Wait time before sending
       required: false
       default: 0
       advanced: true
@@ -275,127 +199,85 @@ send_location:
           unit_of_measurement: ms
           mode: slider
 send_contact:
-  name: Send Contact Card
-  description: Share a contact's information via WhatsApp.
   fields:
     phone_number:
-      name: Phone Number
-      description: The recipient's phone number with country code. Leave empty if
-        sending to a group.
       required: false
       example: '+1234567890'
       selector:
         text: {}
     group_id:
-      name: Group
-      description: Group JID to send to (e.g., 123456789@g.us).
       required: false
       selector:
         text:
           suffix: '@g.us'
     contact_name:
-      name: Contact Name
-      description: Full name of the contact to share
       required: true
       example: John Doe
       selector:
         text: null
     contact_phone:
-      name: Contact Phone
-      description: Phone number of the contact
       required: true
       example: '+1987654321'
       selector:
         text: {}
     contact_email:
-      name: Contact Email
-      description: Email address of the contact
       required: false
       example: john@example.com
       advanced: true
       selector:
         text: {}
     contact_organization:
-      name: Organization
-      description: Company or organization name
       required: false
       example: Acme Inc.
       advanced: true
       selector:
         text: null
 send_reaction:
-  name: Send Reaction
-  description: React to a message with an emoji.
   fields:
     phone_number:
-      name: Phone Number
-      description: The chat's phone number with country code. Leave empty if reacting
-        in a group.
       required: false
       example: '+1234567890'
       selector:
         text: {}
     group_id:
-      name: Group
-      description: Group JID where the message is. Leave empty if reacting in a private
-        chat.
       required: false
       selector:
         text:
           suffix: '@g.us'
     message_id:
-      name: Message ID
-      description: The unique ID of the message to react to
       required: true
       example: BAE5F5A632EAE722
       selector:
         text: null
     reaction:
-      name: Reaction Emoji
-      description: The emoji to react with (leave empty to remove reaction)
       required: true
       example: 👍
       selector:
         text: null
 send_poll:
-  name: Send Poll
-  description: Create and send a poll to gather opinions via WhatsApp. Perfect for
-    group decisions!
   fields:
     phone_number:
-      name: Phone Number
-      description: The recipient's phone number with country code. Leave empty if
-        sending to a group.
       required: false
       example: '+1234567890'
       selector:
         text: {}
     group_id:
-      name: Group
-      description: Group JID to send the poll to (e.g., 123456789@g.us). Polls work
-        great in groups!
       required: false
       selector:
         text:
           suffix: '@g.us'
     poll_name:
-      name: Poll Question
-      description: The question or title of your poll
       required: true
       example: What's your favorite color?
       selector:
         text: null
     poll_options:
-      name: Poll Options
-      description: List of options separated by commas
       required: true
       example: Red, Blue, Green, Yellow
       selector:
         text:
           multiline: true
     max_selections:
-      name: Max Selections
-      description: How many options can be selected (1 for single choice)
       required: false
       default: 1
       selector:
@@ -404,8 +286,6 @@ send_poll:
           max: 10
           mode: slider
     delay:
-      name: Delay (ms)
-      description: Wait time before sending
       required: false
       default: 0
       advanced: true
@@ -417,18 +297,11 @@ send_poll:
           unit_of_measurement: ms
           mode: slider
 check_number:
-  name: Check WhatsApp Number
-  description: Verify if a phone number is registered on WhatsApp.
   fields:
     phone_number:
-      name: Phone Number
-      description: The phone number to check (with country code)
       required: true
       example: '+1234567890'
       selector:
         text: {}
 refresh_groups:
-  name: Refresh Groups List
-  description: Fetch the latest list of WhatsApp groups. Results are stored in the
-    Groups sensor.
   fields: {}
