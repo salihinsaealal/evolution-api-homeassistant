@@ -2,6 +2,9 @@
 from __future__ import annotations
 
 import logging
+import os
+import base64
+import mimetypes
 from typing import Any
 
 import voluptuous as vol
@@ -12,7 +15,7 @@ from homeassistant.core import HomeAssistant, ServiceCall, callback
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-PLATFORMS = [Platform.SENSOR, Platform.BUTTON]
+PLATFORMS = [Platform.SENSOR, Platform.BUTTON, Platform.MEDIA_PLAYER]
 
 from .api import EvolutionApiClient, EvolutionApiError
 from .storage import EvolutionApiStorage
@@ -37,6 +40,8 @@ from .const import (
     ATTR_MESSAGE,
     ATTR_MESSAGE_ID,
     ATTR_PHONE_NUMBER,
+    ATTR_TARGET, # <--- NEW
+    ATTR_INSTANCE_ID, # <--- NEW
     ATTR_POLL_MAX_SELECTIONS,
     ATTR_POLL_NAME,
     ATTR_POLL_OPTIONS,
@@ -63,28 +68,70 @@ SERVICE_REFRESH_GROUPS = "refresh_groups"
 
 _LOGGER = logging.getLogger(__name__)
 
-# Helper to get recipient (phone number or group ID)
-def _get_recipient(call_data: dict[str, Any]) -> str:
-    """Get the recipient from phone_number or group_id."""
-    phone = call_data.get(ATTR_PHONE_NUMBER)
-    group = call_data.get(ATTR_GROUP_ID)
-    
-    if group:
-        # Ensure group ID has the correct suffix
-        if not group.endswith("@g.us"):
-            group = f"{group}@g.us"
-        return group
-    elif phone:
-        return phone
-    else:
-        raise ValueError("Either phone_number or group_id must be provided")
+# --- ADDED: Helper to read local files as Base64 ---
+def encode_file(file_path):
+    """Reads a local file and converts it to a Raw Base64 string."""
+    try:
+        if not os.path.exists(file_path):
+            _LOGGER.error(f"File not found: {file_path}")
+            return None
+        with open(file_path, "rb") as image_file:
+            return base64.b64encode(image_file.read()).decode('utf-8')
+    except Exception as e:
+        _LOGGER.error(f"Error reading file {file_path}: {e}")
+        return None
+
+# --- ADDED: Smart Media Resolver ---
+async def get_media_content(hass: HomeAssistant, path_or_url: str):
+    """
+    Handles:
+    1. http://... (Returns URL as-is)
+    2. media-source://... (Resolves to internal URL -> Downloads -> Returns Base64)
+    3. /config/..., /media/... (Reads local file -> Returns Base64)
+    """
+    if not path_or_url:
+        return None
+
+    # 1. Standard Web URL
+    if path_or_url.startswith("http"):
+        return path_or_url
+
+    # 2. Home Assistant Media Source (media-source://)
+    if path_or_url.startswith("media-source://"):
+        try:
+            # Import media_source only when needed
+            from homeassistant.components import media_source
+            
+            # Resolve the virtual path to a play URL
+            play_media = await media_source.async_resolve_media(hass, path_or_url, None)
+            url = play_media.url
+            
+            # If it's a relative URL (e.g. /media/local/...), prepend HA's internal address
+            if url.startswith("/"):
+                url = f"http://127.0.0.1:{hass.http.server_port}{url}"
+
+            # Download the data internally
+            session = async_get_clientsession(hass)
+            async with session.get(url) as response:
+                if response.status == 200:
+                    data = await response.read()
+                    return base64.b64encode(data).decode('utf-8')
+                else:
+                    _LOGGER.error(f"Failed to fetch media-source: {response.status}")
+                    return None
+        except Exception as e:
+            _LOGGER.error(f"Error resolving media-source: {e}")
+            return None
+
+    # 3. Local File System
+    return await hass.async_add_executor_job(encode_file, path_or_url)
 
 
-# Service schemas
+# Service schemas - Updated to use ATTR_TARGET
 SERVICE_SEND_TEXT_SCHEMA = vol.Schema(
     {
-        vol.Optional(ATTR_PHONE_NUMBER): cv.string,
-        vol.Optional(ATTR_GROUP_ID): cv.string,
+        vol.Required(ATTR_TARGET): cv.string,
+        vol.Optional(ATTR_INSTANCE_ID): cv.string,
         vol.Required(ATTR_MESSAGE): cv.string,
         vol.Optional(ATTR_DELAY, default=0): cv.positive_int,
         vol.Optional(ATTR_LINK_PREVIEW, default=True): cv.boolean,
@@ -94,8 +141,8 @@ SERVICE_SEND_TEXT_SCHEMA = vol.Schema(
 
 SERVICE_SEND_MEDIA_SCHEMA = vol.Schema(
     {
-        vol.Optional(ATTR_PHONE_NUMBER): cv.string,
-        vol.Optional(ATTR_GROUP_ID): cv.string,
+        vol.Required(ATTR_TARGET): cv.string,
+        vol.Optional(ATTR_INSTANCE_ID): cv.string,
         vol.Required(ATTR_MEDIA_URL): cv.string,
         vol.Required(ATTR_MEDIA_TYPE): vol.In(["image", "video", "document"]),
         vol.Optional(ATTR_MEDIA_CAPTION): cv.string,
@@ -106,8 +153,8 @@ SERVICE_SEND_MEDIA_SCHEMA = vol.Schema(
 
 SERVICE_SEND_AUDIO_SCHEMA = vol.Schema(
     {
-        vol.Optional(ATTR_PHONE_NUMBER): cv.string,
-        vol.Optional(ATTR_GROUP_ID): cv.string,
+        vol.Required(ATTR_TARGET): cv.string,
+        vol.Optional(ATTR_INSTANCE_ID): cv.string,
         vol.Required(ATTR_AUDIO_URL): cv.string,
         vol.Optional(ATTR_DELAY, default=0): cv.positive_int,
     }
@@ -115,8 +162,8 @@ SERVICE_SEND_AUDIO_SCHEMA = vol.Schema(
 
 SERVICE_SEND_STICKER_SCHEMA = vol.Schema(
     {
-        vol.Optional(ATTR_PHONE_NUMBER): cv.string,
-        vol.Optional(ATTR_GROUP_ID): cv.string,
+        vol.Required(ATTR_TARGET): cv.string,
+        vol.Optional(ATTR_INSTANCE_ID): cv.string,
         vol.Required(ATTR_STICKER_URL): cv.string,
         vol.Optional(ATTR_DELAY, default=0): cv.positive_int,
     }
@@ -124,8 +171,8 @@ SERVICE_SEND_STICKER_SCHEMA = vol.Schema(
 
 SERVICE_SEND_LOCATION_SCHEMA = vol.Schema(
     {
-        vol.Optional(ATTR_PHONE_NUMBER): cv.string,
-        vol.Optional(ATTR_GROUP_ID): cv.string,
+        vol.Required(ATTR_TARGET): cv.string,
+        vol.Optional(ATTR_INSTANCE_ID): cv.string,
         vol.Required(ATTR_LATITUDE): vol.Coerce(float),
         vol.Required(ATTR_LONGITUDE): vol.Coerce(float),
         vol.Optional(ATTR_LOCATION_NAME): cv.string,
@@ -136,8 +183,8 @@ SERVICE_SEND_LOCATION_SCHEMA = vol.Schema(
 
 SERVICE_SEND_CONTACT_SCHEMA = vol.Schema(
     {
-        vol.Optional(ATTR_PHONE_NUMBER): cv.string,
-        vol.Optional(ATTR_GROUP_ID): cv.string,
+        vol.Required(ATTR_TARGET): cv.string,
+        vol.Optional(ATTR_INSTANCE_ID): cv.string,
         vol.Required(ATTR_CONTACT_NAME): cv.string,
         vol.Required(ATTR_CONTACT_PHONE): cv.string,
         vol.Optional(ATTR_CONTACT_EMAIL): cv.string,
@@ -147,8 +194,8 @@ SERVICE_SEND_CONTACT_SCHEMA = vol.Schema(
 
 SERVICE_SEND_REACTION_SCHEMA = vol.Schema(
     {
-        vol.Optional(ATTR_PHONE_NUMBER): cv.string,
-        vol.Optional(ATTR_GROUP_ID): cv.string,
+        vol.Required(ATTR_TARGET): cv.string,
+        vol.Optional(ATTR_INSTANCE_ID): cv.string,
         vol.Required(ATTR_MESSAGE_ID): cv.string,
         vol.Required(ATTR_REACTION): cv.string,
     }
@@ -156,8 +203,8 @@ SERVICE_SEND_REACTION_SCHEMA = vol.Schema(
 
 SERVICE_SEND_POLL_SCHEMA = vol.Schema(
     {
-        vol.Optional(ATTR_PHONE_NUMBER): cv.string,
-        vol.Optional(ATTR_GROUP_ID): cv.string,
+        vol.Required(ATTR_TARGET): cv.string,
+        vol.Optional(ATTR_INSTANCE_ID): cv.string,
         vol.Required(ATTR_POLL_NAME): cv.string,
         vol.Required(ATTR_POLL_OPTIONS): cv.string,
         vol.Optional(ATTR_POLL_MAX_SELECTIONS, default=1): cv.positive_int,
@@ -248,14 +295,18 @@ async def _async_register_services(hass: HomeAssistant) -> None:
     async def async_send_text(call: ServiceCall) -> None:
         """Handle send text service call."""
         client = _get_client(hass)
+        instance = call.data.get(ATTR_INSTANCE_ID)
         try:
-            recipient = _get_recipient(call.data)
+            # Get target directly from call data
+            recipient = call.data[ATTR_TARGET]
+            
             await client.send_text(
                 number=recipient,
                 text=call.data[ATTR_MESSAGE],
                 delay=call.data.get(ATTR_DELAY),
                 link_preview=call.data.get(ATTR_LINK_PREVIEW, True),
                 mention_all=call.data.get(ATTR_MENTION_ALL, False),
+                instance_id=instance,
             )
         except EvolutionApiError as err:
             _LOGGER.error("Failed to send text message: %s", err)
@@ -264,15 +315,24 @@ async def _async_register_services(hass: HomeAssistant) -> None:
     async def async_send_media(call: ServiceCall) -> None:
         """Handle send media service call."""
         client = _get_client(hass)
+        instance = call.data.get(ATTR_INSTANCE_ID)
         try:
-            recipient = _get_recipient(call.data)
+            recipient = call.data[ATTR_TARGET]
+            
+            # Use smart resolver for media
+            media_input = call.data[ATTR_MEDIA_URL]
+            processed_media = await get_media_content(hass, media_input)
+            if not processed_media:
+                 raise ValueError(f"Could not resolve media: {media_input}")
+
             await client.send_media(
                 number=recipient,
-                media_url=call.data[ATTR_MEDIA_URL],
+                media_url=processed_media,
                 media_type=call.data[ATTR_MEDIA_TYPE],
                 caption=call.data.get(ATTR_MEDIA_CAPTION),
                 filename=call.data.get(ATTR_FILENAME),
                 delay=call.data.get(ATTR_DELAY),
+                instance_id=instance,
             )
         except EvolutionApiError as err:
             _LOGGER.error("Failed to send media: %s", err)
@@ -281,12 +341,21 @@ async def _async_register_services(hass: HomeAssistant) -> None:
     async def async_send_audio(call: ServiceCall) -> None:
         """Handle send audio service call."""
         client = _get_client(hass)
+        instance = call.data.get(ATTR_INSTANCE_ID)
         try:
-            recipient = _get_recipient(call.data)
+            recipient = call.data[ATTR_TARGET]
+            
+            # Use smart resolver for audio
+            audio_input = call.data[ATTR_AUDIO_URL]
+            processed_audio = await get_media_content(hass, audio_input)
+            if not processed_audio:
+                raise ValueError(f"Could not resolve audio: {audio_input}")
+
             await client.send_audio(
                 number=recipient,
-                audio_url=call.data[ATTR_AUDIO_URL],
+                audio_url=processed_audio,
                 delay=call.data.get(ATTR_DELAY),
+                instance_id=instance,
             )
         except EvolutionApiError as err:
             _LOGGER.error("Failed to send audio: %s", err)
@@ -295,12 +364,21 @@ async def _async_register_services(hass: HomeAssistant) -> None:
     async def async_send_sticker(call: ServiceCall) -> None:
         """Handle send sticker service call."""
         client = _get_client(hass)
+        instance = call.data.get(ATTR_INSTANCE_ID)
         try:
-            recipient = _get_recipient(call.data)
+            recipient = call.data[ATTR_TARGET]
+            
+            # Use smart resolver for sticker
+            sticker_input = call.data[ATTR_STICKER_URL]
+            processed_sticker = await get_media_content(hass, sticker_input)
+            if not processed_sticker:
+                raise ValueError(f"Could not resolve sticker: {sticker_input}")
+
             await client.send_sticker(
                 number=recipient,
-                sticker_url=call.data[ATTR_STICKER_URL],
+                sticker_url=processed_sticker,
                 delay=call.data.get(ATTR_DELAY),
+                instance_id=instance,
             )
         except EvolutionApiError as err:
             _LOGGER.error("Failed to send sticker: %s", err)
@@ -309,8 +387,9 @@ async def _async_register_services(hass: HomeAssistant) -> None:
     async def async_send_location(call: ServiceCall) -> None:
         """Handle send location service call."""
         client = _get_client(hass)
+        instance = call.data.get(ATTR_INSTANCE_ID)
         try:
-            recipient = _get_recipient(call.data)
+            recipient = call.data[ATTR_TARGET]
             await client.send_location(
                 number=recipient,
                 latitude=call.data[ATTR_LATITUDE],
@@ -318,6 +397,7 @@ async def _async_register_services(hass: HomeAssistant) -> None:
                 name=call.data.get(ATTR_LOCATION_NAME),
                 address=call.data.get(ATTR_LOCATION_ADDRESS),
                 delay=call.data.get(ATTR_DELAY),
+                instance_id=instance,
             )
         except EvolutionApiError as err:
             _LOGGER.error("Failed to send location: %s", err)
@@ -326,14 +406,16 @@ async def _async_register_services(hass: HomeAssistant) -> None:
     async def async_send_contact(call: ServiceCall) -> None:
         """Handle send contact service call."""
         client = _get_client(hass)
+        instance = call.data.get(ATTR_INSTANCE_ID)
         try:
-            recipient = _get_recipient(call.data)
+            recipient = call.data[ATTR_TARGET]
             await client.send_contact(
                 number=recipient,
                 contact_name=call.data[ATTR_CONTACT_NAME],
                 contact_phone=call.data[ATTR_CONTACT_PHONE],
                 contact_email=call.data.get(ATTR_CONTACT_EMAIL),
                 contact_organization=call.data.get(ATTR_CONTACT_ORG),
+                instance_id=instance,
             )
         except EvolutionApiError as err:
             _LOGGER.error("Failed to send contact: %s", err)
@@ -342,12 +424,14 @@ async def _async_register_services(hass: HomeAssistant) -> None:
     async def async_send_reaction(call: ServiceCall) -> None:
         """Handle send reaction service call."""
         client = _get_client(hass)
+        instance = call.data.get(ATTR_INSTANCE_ID)
         try:
-            recipient = _get_recipient(call.data)
+            recipient = call.data[ATTR_TARGET]
             await client.send_reaction(
                 number=recipient,
                 message_id=call.data[ATTR_MESSAGE_ID],
                 reaction=call.data[ATTR_REACTION],
+                instance_id=instance,
             )
         except EvolutionApiError as err:
             _LOGGER.error("Failed to send reaction: %s", err)
@@ -356,17 +440,19 @@ async def _async_register_services(hass: HomeAssistant) -> None:
     async def async_send_poll(call: ServiceCall) -> None:
         """Handle send poll service call."""
         client = _get_client(hass)
+        instance = call.data.get(ATTR_INSTANCE_ID)
         # Parse poll options from comma-separated string
         options_str = call.data[ATTR_POLL_OPTIONS]
         options = [opt.strip() for opt in options_str.split(",") if opt.strip()]
         try:
-            recipient = _get_recipient(call.data)
+            recipient = call.data[ATTR_TARGET]
             await client.send_poll(
                 number=recipient,
                 poll_name=call.data[ATTR_POLL_NAME],
                 options=options,
                 max_selections=call.data.get(ATTR_POLL_MAX_SELECTIONS, 1),
                 delay=call.data.get(ATTR_DELAY),
+                instance_id=instance,
             )
         except EvolutionApiError as err:
             _LOGGER.error("Failed to send poll: %s", err)
