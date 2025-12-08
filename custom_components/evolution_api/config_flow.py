@@ -182,39 +182,46 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
                 errors["base"] = "instance_not_connected"
             except EvolutionApiAuthError:
                 errors["base"] = "invalid_auth"
-            except EvolutionApiError:
+            except Exception:
                 errors["base"] = "cannot_connect"
 
         # Show form with current values
-        return self.async_show_form(
-            step_id="init",
-            data_schema=vol.Schema(
+        try:
+            defaults = self.config_entry.data
+            schema = vol.Schema(
                 {
                     vol.Required(
                         CONF_SERVER_URL,
-                        default=self.config_entry.data.get(CONF_SERVER_URL, ""),
+                        default=defaults.get(CONF_SERVER_URL, ""),
                     ): TextSelector(
                         TextSelectorConfig(type=TextSelectorType.URL)
                     ),
                     vol.Required(
                         CONF_INSTANCE_ID,
-                        default=self.config_entry.data.get(CONF_INSTANCE_ID, ""),
+                        default=defaults.get(CONF_INSTANCE_ID, ""),
                     ): TextSelector(
                         TextSelectorConfig(type=TextSelectorType.TEXT)
                     ),
                     vol.Required(
                         CONF_API_KEY,
-                        default=self.config_entry.data.get(CONF_API_KEY, ""),
+                        default=defaults.get(CONF_API_KEY, ""),
                     ): TextSelector(
                         TextSelectorConfig(type=TextSelectorType.PASSWORD)
                     ),
                     vol.Optional(
                         CONF_VERIFY_SSL,
-                        default=self.config_entry.data.get(
+                        default=defaults.get(
                             CONF_VERIFY_SSL, DEFAULT_VERIFY_SSL
                         ),
                     ): BooleanSelector(),
                 }
-            ),
+            )
+        except Exception:
+            # Fallback if config is malformed
+            return self.async_abort(reason="unknown")
+
+        return self.async_show_form(
+            step_id="init",
+            data_schema=schema,
             errors=errors,
         )

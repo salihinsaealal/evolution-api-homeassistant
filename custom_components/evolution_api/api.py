@@ -77,12 +77,18 @@ class EvolutionApiClient:
         endpoint: str,
         data: dict[str, Any] | None = None,
         include_instance: bool = True,
+        instance_id: str | None = None, # <--- CHANGED: Added override arg
     ) -> dict[str, Any]:
         """Make a request to the Evolution API."""
+        
+        # <--- CHANGED: Logic to use override or default instance
+        target_instance = instance_id if instance_id else self._instance_id
+        
         if include_instance:
-            url = f"{self._server_url}{endpoint}/{self._instance_id}"
+            url = f"{self._server_url}{endpoint}/{target_instance}"
         else:
             url = f"{self._server_url}{endpoint}"
+        # ----------------------------------------------------
 
         try:
             async with async_timeout.timeout(DEFAULT_TIMEOUT):
@@ -157,6 +163,7 @@ class EvolutionApiClient:
         link_preview: bool = True,
         mention_all: bool = False,
         mentioned: list[str] | None = None,
+        instance_id: str | None = None, # <--- CHANGED
     ) -> dict[str, Any]:
         """Send a text message."""
         payload: dict[str, Any] = {
@@ -172,7 +179,8 @@ class EvolutionApiClient:
             payload["mentioned"] = mentioned
 
         _LOGGER.debug("Sending text message to %s", number)
-        return await self._request("POST", API_ENDPOINT_SEND_TEXT, payload)
+        # <--- CHANGED: Passing instance_id
+        return await self._request("POST", API_ENDPOINT_SEND_TEXT, payload, instance_id=instance_id)
 
     async def send_media(
         self,
@@ -182,6 +190,7 @@ class EvolutionApiClient:
         caption: str | None = None,
         filename: str | None = None,
         delay: int | None = None,
+        instance_id: str | None = None, # <--- CHANGED
     ) -> dict[str, Any]:
         """Send a media message (image, video, document)."""
         payload: dict[str, Any] = {
@@ -205,13 +214,14 @@ class EvolutionApiClient:
         payload["mimetype"] = mimetype_map.get(media_type, "application/octet-stream")
 
         _LOGGER.debug("Sending %s to %s", media_type, number)
-        return await self._request("POST", API_ENDPOINT_SEND_MEDIA, payload)
+        return await self._request("POST", API_ENDPOINT_SEND_MEDIA, payload, instance_id=instance_id)
 
     async def send_audio(
         self,
         number: str,
         audio_url: str,
         delay: int | None = None,
+        instance_id: str | None = None, # <--- CHANGED
     ) -> dict[str, Any]:
         """Send an audio message (voice note)."""
         payload: dict[str, Any] = {
@@ -222,13 +232,14 @@ class EvolutionApiClient:
             payload["delay"] = delay
 
         _LOGGER.debug("Sending audio to %s", number)
-        return await self._request("POST", API_ENDPOINT_SEND_AUDIO, payload)
+        return await self._request("POST", API_ENDPOINT_SEND_AUDIO, payload, instance_id=instance_id)
 
     async def send_sticker(
         self,
         number: str,
         sticker_url: str,
         delay: int | None = None,
+        instance_id: str | None = None, # <--- CHANGED
     ) -> dict[str, Any]:
         """Send a sticker message."""
         payload: dict[str, Any] = {
@@ -239,7 +250,7 @@ class EvolutionApiClient:
             payload["delay"] = delay
 
         _LOGGER.debug("Sending sticker to %s", number)
-        return await self._request("POST", API_ENDPOINT_SEND_STICKER, payload)
+        return await self._request("POST", API_ENDPOINT_SEND_STICKER, payload, instance_id=instance_id)
 
     async def send_location(
         self,
@@ -249,6 +260,7 @@ class EvolutionApiClient:
         name: str | None = None,
         address: str | None = None,
         delay: int | None = None,
+        instance_id: str | None = None, # <--- CHANGED
     ) -> dict[str, Any]:
         """Send a location message."""
         payload: dict[str, Any] = {
@@ -264,7 +276,7 @@ class EvolutionApiClient:
             payload["delay"] = delay
 
         _LOGGER.debug("Sending location to %s", number)
-        return await self._request("POST", API_ENDPOINT_SEND_LOCATION, payload)
+        return await self._request("POST", API_ENDPOINT_SEND_LOCATION, payload, instance_id=instance_id)
 
     async def send_contact(
         self,
@@ -273,6 +285,7 @@ class EvolutionApiClient:
         contact_phone: str,
         contact_email: str | None = None,
         contact_organization: str | None = None,
+        instance_id: str | None = None, # <--- CHANGED
     ) -> dict[str, Any]:
         """Send a contact message."""
         contact: dict[str, Any] = {
@@ -290,13 +303,14 @@ class EvolutionApiClient:
         }
 
         _LOGGER.debug("Sending contact to %s", number)
-        return await self._request("POST", API_ENDPOINT_SEND_CONTACT, payload)
+        return await self._request("POST", API_ENDPOINT_SEND_CONTACT, payload, instance_id=instance_id)
 
     async def send_reaction(
         self,
         number: str,
         message_id: str,
         reaction: str,
+        instance_id: str | None = None, # <--- CHANGED
     ) -> dict[str, Any]:
         """Send a reaction to a message."""
         payload = {
@@ -308,7 +322,7 @@ class EvolutionApiClient:
         }
 
         _LOGGER.debug("Sending reaction to message %s", message_id)
-        return await self._request("POST", API_ENDPOINT_SEND_REACTION, payload)
+        return await self._request("POST", API_ENDPOINT_SEND_REACTION, payload, instance_id=instance_id)
 
     async def send_poll(
         self,
@@ -317,6 +331,7 @@ class EvolutionApiClient:
         options: list[str],
         max_selections: int = 1,
         delay: int | None = None,
+        instance_id: str | None = None, # <--- CHANGED
     ) -> dict[str, Any]:
         """Send a poll message."""
         payload: dict[str, Any] = {
@@ -329,7 +344,7 @@ class EvolutionApiClient:
             payload["delay"] = delay
 
         _LOGGER.debug("Sending poll to %s", number)
-        return await self._request("POST", API_ENDPOINT_SEND_POLL, payload)
+        return await self._request("POST", API_ENDPOINT_SEND_POLL, payload, instance_id=instance_id)
 
     async def send_list(
         self,

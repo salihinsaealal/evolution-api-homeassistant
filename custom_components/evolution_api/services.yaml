@@ -3,23 +3,21 @@ send_text:
   description: Send a text message via WhatsApp. Use this service in automations to
     send notifications to any WhatsApp number or group.
   fields:
-    phone_number:
-      name: Phone Number
-      description: The recipient's phone number with country code (e.g., +1234567890).
-        Leave empty if sending to a group.
-      required: false
-      example: '+1234567890'
+    # --- UNIFIED TARGET ---
+    target:
+      name: Target
+      description: The recipient's phone number (e.g., 1234567890) or Group JID (e.g., 123...@g.us).
+      required: true
+      example: "1234567890"
       selector:
         text:
-    group_id:
-      name: Group
-      description: Select a group to send the message to. Use the Groups sensor attributes
-        to find group IDs, or paste the group JID directly (e.g., 123456789@g.us).
+    # ----------------------
+    instance_id:
+      name: Instance ID
+      description: Override the default configured instance ID for this message.
       required: false
-      example: 120363418454200327@g.us
       selector:
         text:
-          suffix: '@g.us'
     message:
       name: Message
       description: The text message to send. Supports emojis and line breaks.
@@ -58,29 +56,24 @@ send_text:
         boolean:
 send_media:
   name: Send Media
-  description: Send an image, video, or document via WhatsApp. Supports URLs or base64
-    encoded content.
+  description: Send an image, video, or document via WhatsApp. Supports URLs, local files (/config/...), media-source://, or base64.
   fields:
-    phone_number:
-      name: Phone Number
-      description: The recipient's phone number with country code. Leave empty if
-        sending to a group.
-      required: false
-      example: '+1234567890'
+    target:
+      name: Target
+      description: The recipient's phone number or Group JID.
+      required: true
+      example: "1234567890"
       selector:
         text:
-    group_id:
-      name: Group
-      description: Group JID to send to (e.g., 123456789@g.us). Leave empty if sending
-        to a phone number.
+    instance_id:
+      name: Instance ID
+      description: Override the default configured instance ID for this message.
       required: false
-      example: 120363418454200327@g.us
       selector:
         text:
-          suffix: '@g.us'
     media_url:
-      name: Media URL
-      description: URL to the media file or base64 encoded content
+      name: Media URL/Path
+      description: URL, local path (/config/...), or media-source:// URI.
       required: true
       example: https://example.com/image.jpg
       selector:
@@ -131,24 +124,22 @@ send_audio:
   name: Send Audio Message
   description: Send a voice note or audio file via WhatsApp.
   fields:
-    phone_number:
-      name: Phone Number
-      description: The recipient's phone number with country code. Leave empty if
-        sending to a group.
-      required: false
-      example: '+1234567890'
+    target:
+      name: Target
+      description: The recipient's phone number or Group JID.
+      required: true
+      example: "1234567890"
       selector:
         text:
-    group_id:
-      name: Group
-      description: Group JID to send to (e.g., 123456789@g.us).
+    instance_id:
+      name: Instance ID
+      description: Override the default configured instance ID for this message.
       required: false
       selector:
         text:
-          suffix: '@g.us'
     audio_url:
-      name: Audio URL
-      description: URL to the audio file or base64 encoded content
+      name: Audio URL/Path
+      description: URL, local path (/config/...), or media-source:// URI.
       required: true
       example: https://example.com/audio.mp3
       selector:
@@ -170,21 +161,19 @@ send_sticker:
   name: Send Sticker
   description: Send a sticker via WhatsApp. WebP format recommended.
   fields:
-    phone_number:
-      name: Phone Number
-      description: The recipient's phone number with country code. Leave empty if
-        sending to a group.
-      required: false
-      example: '+1234567890'
+    target:
+      name: Target
+      description: The recipient's phone number or Group JID.
+      required: true
+      example: "1234567890"
       selector:
         text:
-    group_id:
-      name: Group
-      description: Group JID to send to (e.g., 123456789@g.us).
+    instance_id:
+      name: Instance ID
+      description: Override the default configured instance ID for this message.
       required: false
       selector:
         text:
-          suffix: '@g.us'
     sticker_url:
       name: Sticker URL
       description: URL to the sticker (WebP format) or base64 encoded content
@@ -210,47 +199,45 @@ send_location:
   description: Share a location via WhatsApp. Great for sending your home location
     or meeting points.
   fields:
-    phone_number:
-      name: Phone Number
-      description: The recipient's phone number with country code. Leave empty if
-        sending to a group.
-      required: false
-      example: '+1234567890'
+    target:
+      name: Target
+      description: The recipient's phone number or Group JID.
+      required: true
+      example: "1234567890"
       selector:
         text:
-    group_id:
-      name: Group
-      description: Group JID to send to (e.g., 123456789@g.us).
+    instance_id:
+      name: Instance ID
+      description: Override the default configured instance ID for this message.
       required: false
       selector:
         text:
-          suffix: '@g.us'
     latitude:
       name: Latitude
       description: Latitude coordinate (-90 to 90)
       required: true
-      example: '37.7749'
+      example: '2.209201'
       selector:
         text:
     longitude:
       name: Longitude
       description: Longitude coordinate (-180 to 180)
       required: true
-      example: '-122.4194'
+      example: '102.274839'
       selector:
         text:
     name:
       name: Location Name
       description: Display name for the location
       required: false
-      example: Home
+      example: SM Teknik Bukit Piatu
       selector:
         text:
     address:
       name: Address
       description: Full address to display
       required: false
-      example: 123 Main St, City, Country
+      example: 75150 Malacca, Malaysia
       selector:
         text:
     delay:
@@ -270,21 +257,19 @@ send_contact:
   name: Send Contact Card
   description: Share a contact's information via WhatsApp.
   fields:
-    phone_number:
-      name: Phone Number
-      description: The recipient's phone number with country code. Leave empty if
-        sending to a group.
-      required: false
-      example: '+1234567890'
+    target:
+      name: Target
+      description: The recipient's phone number or Group JID.
+      required: true
+      example: "1234567890"
       selector:
         text:
-    group_id:
-      name: Group
-      description: Group JID to send to (e.g., 123456789@g.us).
+    instance_id:
+      name: Instance ID
+      description: Override the default configured instance ID for this message.
       required: false
       selector:
         text:
-          suffix: '@g.us'
     contact_name:
       name: Contact Name
       description: Full name of the contact to share
@@ -319,22 +304,19 @@ send_reaction:
   name: Send Reaction
   description: React to a message with an emoji.
   fields:
-    phone_number:
-      name: Phone Number
-      description: The chat's phone number with country code. Leave empty if reacting
-        in a group.
-      required: false
-      example: '+1234567890'
+    target:
+      name: Target
+      description: The chat's phone number or Group JID.
+      required: true
+      example: "1234567890"
       selector:
         text:
-    group_id:
-      name: Group
-      description: Group JID where the message is. Leave empty if reacting in a private
-        chat.
+    instance_id:
+      name: Instance ID
+      description: Override the default configured instance ID for this message.
       required: false
       selector:
         text:
-          suffix: '@g.us'
     message_id:
       name: Message ID
       description: The unique ID of the message to react to
@@ -354,22 +336,19 @@ send_poll:
   description: Create and send a poll to gather opinions via WhatsApp. Perfect for
     group decisions!
   fields:
-    phone_number:
-      name: Phone Number
-      description: The recipient's phone number with country code. Leave empty if
-        sending to a group.
-      required: false
-      example: '+1234567890'
+    target:
+      name: Target
+      description: The recipient's phone number or Group JID.
+      required: true
+      example: "1234567890"
       selector:
         text:
-    group_id:
-      name: Group
-      description: Group JID to send the poll to (e.g., 123456789@g.us). Polls work
-        great in groups!
+    instance_id:
+      name: Instance ID
+      description: Override the default configured instance ID for this message.
       required: false
       selector:
         text:
-          suffix: '@g.us'
     poll_name:
       name: Poll Question
       description: The question or title of your poll

@@ -66,9 +66,12 @@ SERVICE_SEND_CONTACT: Final = "send_contact"
 SERVICE_SEND_REACTION: Final = "send_reaction"
 SERVICE_SEND_POLL: Final = "send_poll"
 SERVICE_CHECK_NUMBER: Final = "check_number"
+SERVICE_REFRESH_GROUPS: Final = "refresh_groups"
 
 # Service attributes
-ATTR_PHONE_NUMBER: Final = "phone_number"
+ATTR_TARGET: Final = "target" # <--- NEW: Unified Target
+ATTR_INSTANCE_ID: Final = "instance_id"
+ATTR_PHONE_NUMBER: Final = "phone_number" # Kept for check_number
 ATTR_GROUP_ID: Final = "group_id"
 ATTR_MESSAGE: Final = "message"
 ATTR_MEDIA_URL: Final = "media_url"
