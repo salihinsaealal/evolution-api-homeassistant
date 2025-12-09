@@ -56,6 +56,10 @@
           "name": "Target",
           "description": "Recipient's phone number (e.g., 1234567890) or Group JID (e.g., 123...@g.us)."
         },
+        "instance_id": {
+          "name": "Instance ID",
+          "description": "Override the default configured instance ID for this message."
+        },
         "message": {
           "name": "Message",
           "description": "Text message to send. Supports emojis and multi-line messages."
@@ -82,9 +86,13 @@
           "name": "Target",
           "description": "Recipient's phone number or Group JID."
         },
+        "instance_id": {
+          "name": "Instance ID",
+          "description": "Override the default configured instance ID for this message."
+        },
         "media_url": {
-          "name": "Media URL",
-          "description": "URL to the media file or base64 encoded content."
+          "name": "Media URL/Path",
+          "description": "URL, local path (/config/...), or media-source:// URI."
         },
         "media_type": {
           "name": "Media Type",
@@ -112,9 +120,13 @@
           "name": "Target",
           "description": "Recipient's phone number or Group JID."
         },
+        "instance_id": {
+          "name": "Instance ID",
+          "description": "Override the default configured instance ID for this message."
+        },
         "audio_url": {
-          "name": "Audio URL",
-          "description": "URL to the audio file or base64 encoded content."
+          "name": "Audio URL/Path",
+          "description": "URL, local path (/config/...), or media-source:// URI."
         },
         "delay": {
           "name": "Delay (ms)",
@@ -129,6 +141,10 @@
         "target": {
           "name": "Target",
           "description": "Recipient's phone number or Group JID."
+        },
+        "instance_id": {
+          "name": "Instance ID",
+          "description": "Override the default configured instance ID for this message."
         },
         "sticker_url": {
           "name": "Sticker URL",
@@ -147,6 +163,10 @@
         "target": {
           "name": "Target",
           "description": "Recipient's phone number or Group JID."
+        },
+        "instance_id": {
+          "name": "Instance ID",
+          "description": "Override the default configured instance ID for this message."
         },
         "latitude": {
           "name": "Latitude",
@@ -178,6 +198,10 @@
           "name": "Target",
           "description": "Recipient's phone number or Group JID."
         },
+        "instance_id": {
+          "name": "Instance ID",
+          "description": "Override the default configured instance ID for this message."
+        },
         "contact_name": {
           "name": "Contact Name",
           "description": "Full name of the contact to share."
@@ -204,6 +228,10 @@
           "name": "Target",
           "description": "Chat phone number or Group JID."
         },
+        "instance_id": {
+          "name": "Instance ID",
+          "description": "Override the default configured instance ID for this message."
+        },
         "message_id": {
           "name": "Message ID",
           "description": "Unique ID of the message to react to."
@@ -221,6 +249,10 @@
         "target": {
           "name": "Target",
           "description": "Recipient's phone number or Group JID."
+        },
+        "instance_id": {
+          "name": "Instance ID",
+          "description": "Override the default configured instance ID for this message."
         },
         "poll_name": {
           "name": "Poll Question",

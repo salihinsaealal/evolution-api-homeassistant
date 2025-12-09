@@ -80,10 +80,29 @@ class EvolutionApiMediaPlayer(MediaPlayerEntity):
         """Return the state of the device."""
         return self._attr_state
 
+    # Supported media types for audio sending
+    SUPPORTED_MEDIA_TYPES = {"music", "audio", "voice", "sound"}
+
     async def async_play_media(
         self, media_type: str, media_id: str, **kwargs: Any
     ) -> None:
-        """Play media (Send Audio)."""
+        """Play media (Send Audio to WhatsApp).
+        
+        Note: This media player only supports audio content. The media_type
+        parameter is validated but the actual content is always sent as audio.
+        
+        Required in 'extra':
+            - target: WhatsApp phone number or Group JID
+        Optional in 'extra':
+            - instance_id: Override the default Evolution API instance
+        """
+        # Validate media_type (warn but proceed for flexibility)
+        if media_type and media_type.lower() not in self.SUPPORTED_MEDIA_TYPES:
+            _LOGGER.warning(
+                "Media type '%s' is not in supported types %s. "
+                "This media player only sends audio to WhatsApp. Proceeding anyway.",
+                media_type, self.SUPPORTED_MEDIA_TYPES
+            )
         
         # 1. Extract Target & Instance from 'extra' data
         extra = kwargs.get("extra", {})
@@ -92,33 +111,41 @@ class EvolutionApiMediaPlayer(MediaPlayerEntity):
 
         if not target:
             _LOGGER.error(
-                "Missing 'target'. Please provide 'extra: target: phone/group' in your service call."
+                "Missing 'target'. Please provide 'extra: target: <phone_or_group>' in your service call. "
+                "Example: extra: { target: '1234567890' }"
             )
             return
 
-        _LOGGER.debug("Sending audio to %s via %s", target, instance_override or self._default_instance_id)
+        _LOGGER.debug(
+            "Sending audio to %s via instance %s (media_type: %s)", 
+            target, instance_override or self._default_instance_id, media_type
+        )
         self._attr_state = MediaPlayerState.PLAYING
         self.async_write_ha_state()
 
         try:
             # 2. Resolve the media (handle local files, TTS URLs, media-source://)
-            # Uses the helper function already defined in your __init__.py
             processed_audio = await get_media_content(self.hass, media_id)
             
             if not processed_audio:
-                 _LOGGER.error("Failed to process audio URL: %s", media_id)
-                 self._attr_state = MediaPlayerState.IDLE
-                 self.async_write_ha_state()
-                 return
+                _LOGGER.error("Failed to process audio URL: %s", media_id)
+                self._attr_state = MediaPlayerState.IDLE
+                self.async_write_ha_state()
+                return
 
             # 3. Send via API (passing target, audio, and optional instance override)
             await self._client.send_audio(
                 number=target,
                 audio_url=processed_audio,
-                instance_id=instance_override # Supports flexible instance
+                instance_id=instance_override
             )
         except EvolutionApiError as err:
             _LOGGER.error("Failed to send audio via media player: %s", err)
+            self._attr_state = MediaPlayerState.IDLE
+            self.async_write_ha_state()
+            return
+        except Exception as err:
+            _LOGGER.error("Unexpected error in media player: %s", err)
             self._attr_state = MediaPlayerState.IDLE
             self.async_write_ha_state()
             return

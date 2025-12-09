@@ -337,6 +337,12 @@ async def _async_register_services(hass: HomeAssistant) -> None:
         except EvolutionApiError as err:
             _LOGGER.error("Failed to send media: %s", err)
             raise
+        except ValueError as err:
+            _LOGGER.error("Media resolution error: %s", err)
+            raise
+        except Exception as err:
+            _LOGGER.error("Unexpected error sending media: %s", err)
+            raise
 
     async def async_send_audio(call: ServiceCall) -> None:
         """Handle send audio service call."""
@@ -360,6 +366,12 @@ async def _async_register_services(hass: HomeAssistant) -> None:
         except EvolutionApiError as err:
             _LOGGER.error("Failed to send audio: %s", err)
             raise
+        except ValueError as err:
+            _LOGGER.error("Audio resolution error: %s", err)
+            raise
+        except Exception as err:
+            _LOGGER.error("Unexpected error sending audio: %s", err)
+            raise
 
     async def async_send_sticker(call: ServiceCall) -> None:
         """Handle send sticker service call."""
@@ -382,6 +394,12 @@ async def _async_register_services(hass: HomeAssistant) -> None:
             )
         except EvolutionApiError as err:
             _LOGGER.error("Failed to send sticker: %s", err)
+            raise
+        except ValueError as err:
+            _LOGGER.error("Sticker resolution error: %s", err)
+            raise
+        except Exception as err:
+            _LOGGER.error("Unexpected error sending sticker: %s", err)
             raise
 
     async def async_send_location(call: ServiceCall) -> None:

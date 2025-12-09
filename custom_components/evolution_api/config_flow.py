@@ -182,7 +182,11 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
                 errors["base"] = "instance_not_connected"
             except EvolutionApiAuthError:
                 errors["base"] = "invalid_auth"
-            except Exception:
+            except EvolutionApiError as err:
+                _LOGGER.error("Evolution API error: %s", err)
+                errors["base"] = "cannot_connect"
+            except Exception as err:  # pylint: disable=broad-except
+                _LOGGER.exception("Unexpected error in options flow: %s", err)
                 errors["base"] = "cannot_connect"
 
         # Show form with current values

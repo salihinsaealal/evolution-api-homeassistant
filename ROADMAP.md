@@ -43,7 +43,7 @@
 
 ---
 
-## Phase 2: Service UI Polish (v1.2.0)
+## Phase 2: Service UI Polish (v1.2.x)
 
 ### Goals
 - Make all services usable via UI without YAML knowledge
