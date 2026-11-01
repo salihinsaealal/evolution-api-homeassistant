@@ -1,9 +1,10 @@
 {
   "domain": "evolution_api",
   "name": "Evolution API",
-  "codeowners": ["@salihinsaealal","@zubir2k"],
+  "categories": ["messaging_notifications.chat_apps"],
+  "codeowners": ["@salihinsaealal", "@zubir2k"],
   "config_flow": true,
-  "dependencies": [], 
+  "dependencies": [],
   "documentation": "https://github.com/salihinsaealal/evolution-api-homeassistant",
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/salihinsaealal/evolution-api-homeassistant/issues",
