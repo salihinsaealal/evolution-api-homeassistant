@@ -6,7 +6,6 @@ import logging
 from typing import Any
 
 import aiohttp
-import async_timeout
 
 from .const import (
     API_ENDPOINT_CONNECTION_STATE,
@@ -91,7 +90,7 @@ class EvolutionApiClient:
         # ----------------------------------------------------
 
         try:
-            async with async_timeout.timeout(DEFAULT_TIMEOUT):
+            async with asyncio.timeout(DEFAULT_TIMEOUT):
                 if method.upper() == "GET":
                     async with self._session.get(
                         url, headers=self.headers, ssl=self._verify_ssl
@@ -442,7 +441,7 @@ class EvolutionApiClient:
         url = f"{self._server_url}{API_ENDPOINT_FETCH_ALL_GROUPS}/{self._instance_id}?getParticipants={'true' if get_participants else 'false'}"
         
         try:
-            async with async_timeout.timeout(DEFAULT_TIMEOUT):
+            async with asyncio.timeout(DEFAULT_TIMEOUT):
                 async with self._session.get(
                     url, headers=self.headers, ssl=self._verify_ssl
                 ) as response:
